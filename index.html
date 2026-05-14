@@ -904,87 +904,198 @@ footer ul li{margin-bottom:6px}
   </div>
 
   <div class="map-wrap">
-    <svg class="map-svg" viewBox="0 0 800 580" xmlns="http://www.w3.org/2000/svg" id="chinaMap">
-      <!-- Stylized China coastline. East coast emphasis -->
+    <svg class="map-svg" viewBox="0 0 900 640" xmlns="http://www.w3.org/2000/svg" id="chinaMap" preserveAspectRatio="xMidYMid meet">
       <defs>
-        <radialGradient id="dotGlow" cx="50%" cy="50%" r="50%">
+        <linearGradient id="seaG" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0a1830"/>
+          <stop offset="100%" stop-color="#070d1a"/>
+        </linearGradient>
+        <radialGradient id="cnGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="hqGlow" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.8"/>
           <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
         </radialGradient>
+        <radialGradient id="oilGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ff7a45" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#ff7a45" stop-opacity="0"/>
+        </radialGradient>
+        <pattern id="cnGrid" width="60" height="60" patternUnits="userSpaceOnUse">
+          <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(0,212,255,0.04)" stroke-width="1"/>
+        </pattern>
       </defs>
 
-      <!-- Land mass (simplified) -->
-      <path d="M 80 120 L 160 90 L 230 95 L 290 80 L 340 100 L 400 90 L 470 115 L 510 130 L 540 165 L 560 200 L 580 235 L 600 275 L 605 310 L 595 345 L 580 380 L 570 415 L 555 450 L 530 480 L 500 500 L 460 510 L 420 515 L 380 510 L 340 500 L 300 485 L 270 465 L 250 440 L 230 410 L 210 380 L 190 350 L 170 320 L 155 285 L 140 250 L 125 215 L 110 180 L 95 150 Z"
-        fill="#0e1a30" stroke="#1f2940" stroke-width="1"/>
+      <!-- Sea background -->
+      <rect width="900" height="640" fill="url(#seaG)"/>
+      <rect width="900" height="640" fill="url(#cnGrid)"/>
 
-      <!-- Sea -->
-      <rect x="595" y="100" width="200" height="450" fill="url(#dotGlow)" opacity="0.1"/>
+      <!-- China mainland — recognizable outline with proper east coast detail -->
+      <path d="
+        M 120,180
+        C 160,148 215,128 285,125
+        L 395,114 L 510,108 L 600,116
+        C 658,128 695,148 712,170
+        L 720,195 L 712,222
+        C 690,232 666,235 668,250
+        L 695,256 L 722,264 L 740,278
+        C 730,300 707,304 692,294
+        L 678,316 L 665,344
+        C 657,352 650,358 654,366
+        L 663,376 L 670,386
+        C 660,406 650,428 642,452
+        L 622,482 L 596,510
+        C 582,520 562,528 552,524
+        L 532,512 L 502,526
+        C 480,535 456,538 454,531
+        C 442,520 425,516 418,524
+        L 372,532 L 312,525
+        L 262,498 L 215,460
+        L 175,420 L 152,372
+        L 138,322 L 130,272
+        L 124,222 Z
+      " fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.5"/>
 
-      <!-- Province dots -->
+      <!-- Subtle interior province boundary hints -->
+      <g stroke="#1a2540" stroke-width="0.6" fill="none" opacity="0.5">
+        <path d="M 320 140 Q 380 220 430 310 T 510 460"/>
+        <path d="M 240 210 Q 320 320 410 400"/>
+        <path d="M 490 130 Q 540 240 560 340"/>
+      </g>
+
+      <!-- Hainan island -->
+      <ellipse cx="478" cy="582" rx="32" ry="20" fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
+      <text x="478" y="613" fill="#6a7691" font-size="10" font-family="Inter" text-anchor="middle">Hainan</text>
+
+      <!-- Taiwan -->
+      <path d="M 752 400 L 764 412 L 760 446 L 750 446 L 745 418 Z" fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
+      <text x="778 " y="428" fill="#6a7691" font-size="10" font-family="Inter">Taiwan</text>
+
+      <!-- Korea peninsula context -->
+      <path d="M 748 178 L 776 178 L 784 222 L 776 242 L 762 246 L 748 224 Z" fill="#0a1426" stroke="#1f2d4a" stroke-width="1" opacity="0.5"/>
+      <text x="762" y="212" fill="#3a4670" font-size="9" font-family="Inter" text-anchor="middle">Korea</text>
+
+      <!-- Sea labels -->
+      <text x="685" y="184" fill="#3a4670" font-size="10" font-family="Inter" font-style="italic" opacity="0.75">Bohai Sea</text>
+      <text x="790" y="295" fill="#3a4670" font-size="11" font-family="Inter" font-style="italic" opacity="0.75">East China Sea</text>
+      <text x="685" y="555" fill="#3a4670" font-size="11" font-family="Inter" font-style="italic" opacity="0.75">South China Sea</text>
+      <text x="220" y="320" fill="#3a4670" font-size="10" font-family="Inter" font-style="italic" opacity="0.6">Interior China</text>
+
+      <!-- Reference cities (context only) -->
+      <g opacity="0.55">
+        <circle cx="620" cy="192" r="2.5" fill="#7a8aa5"/>
+        <text x="628" y="196" fill="#7a8aa5" font-size="9" font-family="Inter">Beijing</text>
+      </g>
+      <g opacity="0.55">
+        <circle cx="676" cy="346" r="2.2" fill="#7a8aa5"/>
+        <text x="682" y="350" fill="#7a8aa5" font-size="9" font-family="Inter">Shanghai</text>
+      </g>
+      <g opacity="0.55">
+        <circle cx="582" cy="508" r="2" fill="#7a8aa5"/>
+        <text x="565" y="503" fill="#7a8aa5" font-size="9" font-family="Inter" text-anchor="end">Hong Kong</text>
+      </g>
+
+      <!-- ===== Province / facility markers ===== -->
+
       <!-- Liaoning -->
-      <g class="province-dot" data-name="Liaoning" data-cap="Vessel + offshore engineering region" data-pipeline="Northern offshore wind cluster">
-        <circle cx="510" cy="155" r="14" fill="rgba(0,212,255,0.2)" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle cx="510" cy="155" r="5" fill="#00d4ff"/>
-        <text x="530" y="160" fill="#e8eef7" font-size="11" font-family="Inter">Liaoning</text>
+      <g class="province-dot" data-name="Liaoning" data-cap="Northern offshore wind cluster" data-pipeline="Future demand zone">
+        <circle cx="690" cy="195" r="20" fill="url(#cnGlow)" opacity="0.6"/>
+        <circle cx="690" cy="195" r="8" fill="rgba(0,212,255,0.22)" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="690" cy="195" r="3.5" fill="#00d4ff"/>
+        <text x="708" y="186" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="600">Liaoning</text>
+        <text x="708" y="200" fill="#9aa6bd" font-size="9" font-family="Inter">Northern cluster</text>
       </g>
 
-      <!-- Shandong (Yantai) -->
-      <g class="province-dot" data-name="Shandong (Yantai)" data-cap="New high-end submarine cable base · 1-2 years to come online" data-pipeline="RMB 3–4bn projected output">
-        <circle cx="500" cy="225" r="18" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="2"/>
-        <circle cx="500" cy="225" r="6" fill="#00d4ff"/>
-        <text x="520" y="230" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="600">Shandong (Yantai)</text>
+      <!-- Shandong / Yantai (manufacturing) -->
+      <g class="province-dot" data-name="Shandong (Yantai)" data-cap="NEW high-end submarine cable base · Bohai Orient subsidiary · 1–2 yrs to come online" data-pipeline="Projected RMB 3–4bn capacity">
+        <circle cx="700" cy="262" r="26" fill="url(#hqGlow)" opacity="0.6"/>
+        <circle cx="700" cy="262" r="11" fill="rgba(0,212,255,0.3)" stroke="#00d4ff" stroke-width="2"/>
+        <rect x="694" y="256" width="12" height="12" fill="#00d4ff" rx="1.5"/>
+        <text x="720" y="258" fill="#00d4ff" font-size="12" font-family="Inter" font-weight="700">Yantai</text>
+        <text x="720" y="271" fill="#9aa6bd" font-size="9" font-family="Inter">Shandong · greenfield</text>
       </g>
 
-      <!-- Jiangsu -->
-      <g class="province-dot" data-name="Jiangsu" data-cap="Major demand center · Fanshi I/II projects" data-pipeline="CGN Fanshi RMB 1.7bn order">
-        <circle cx="500" cy="290" r="16" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle cx="500" cy="290" r="5" fill="#00d4ff"/>
-        <text x="520" y="295" fill="#e8eef7" font-size="11" font-family="Inter">Jiangsu</text>
+      <!-- Jiangsu (demand) -->
+      <g class="province-dot" data-name="Jiangsu" data-cap="Demand hub · CGN Fanshi I/II projects · RMB 1.7bn" data-pipeline="Grid connect 2025/2026">
+        <circle cx="676" cy="324" r="20" fill="url(#cnGlow)" opacity="0.55"/>
+        <circle cx="676" cy="324" r="8" fill="rgba(0,212,255,0.22)" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="676" cy="324" r="3.5" fill="#00d4ff"/>
+        <text x="694" y="320" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="600">Jiangsu</text>
+        <text x="694" y="333" fill="#9aa6bd" font-size="9" font-family="Inter">CGN Fanshi I/II</text>
       </g>
 
-      <!-- Zhejiang (Ningbo HQ) -->
-      <g class="province-dot" data-name="Zhejiang (Ningbo HQ)" data-cap="Headquarters + main factory · ~RMB 10bn annual capacity" data-pipeline="Core manufacturing hub">
-        <circle cx="510" cy="345" r="22" fill="rgba(0,212,255,0.3)" stroke="#00d4ff" stroke-width="2.5"/>
-        <circle cx="510" cy="345" r="8" fill="#00d4ff"/>
-        <text x="535" y="350" fill="#00d4ff" font-size="12" font-family="Inter" font-weight="700">Ningbo HQ ★</text>
+      <!-- Zhejiang / Ningbo HQ -->
+      <g class="province-dot" data-name="Zhejiang (Ningbo HQ)" data-cap="HQ + main factory · ~RMB 10bn annual capacity" data-pipeline="Core manufacturing hub since founding">
+        <circle cx="660" cy="378" r="34" fill="url(#hqGlow)" opacity="0.7"/>
+        <circle cx="660" cy="378" r="14" fill="rgba(0,212,255,0.35)" stroke="#00d4ff" stroke-width="2.5"/>
+        <polygon points="660,368 663,376 671,376 665,381 667,389 660,384 653,389 655,381 649,376 657,376" fill="#00d4ff"/>
+        <text x="680" y="373" fill="#00d4ff" font-size="13" font-family="Inter" font-weight="800">Ningbo HQ</text>
+        <text x="680" y="387" fill="#9aa6bd" font-size="9" font-family="Inter">Zhejiang · main factory</text>
       </g>
 
       <!-- Fujian -->
-      <g class="province-dot" data-name="Fujian" data-cap="Active offshore wind buildout coastline" data-pipeline="Multiple TGC / utility projects">
-        <circle cx="495" cy="400" r="14" fill="rgba(0,212,255,0.2)" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle cx="495" cy="400" r="5" fill="#00d4ff"/>
-        <text x="515" y="405" fill="#e8eef7" font-size="11" font-family="Inter">Fujian</text>
+      <g class="province-dot" data-name="Fujian" data-cap="Active offshore wind buildout coastline" data-pipeline="Multiple TGC + utility projects">
+        <circle cx="640" cy="445" r="18" fill="url(#cnGlow)" opacity="0.45"/>
+        <circle cx="640" cy="445" r="7" fill="rgba(0,212,255,0.2)" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="640" cy="445" r="3" fill="#00d4ff"/>
+        <text x="656" y="441" fill="#e8eef7" font-size="11" font-family="Inter">Fujian</text>
+        <text x="656" y="453" fill="#9aa6bd" font-size="9" font-family="Inter">Active coastline</text>
       </g>
 
-      <!-- Guangdong (Yangjiang) -->
-      <g class="province-dot" data-name="Guangdong (Yangjiang)" data-cap="New factory · 85% utilization by Jun 2025" data-pipeline="Yangjiang Qingzhou / Yangxi Shaba wind farms">
-        <circle cx="445" cy="465" r="18" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="2"/>
-        <circle cx="445" cy="465" r="6" fill="#00d4ff"/>
-        <text x="465" y="470" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="600">Guangdong (Yangjiang)</text>
+      <!-- Guangdong / Yangjiang (manufacturing) -->
+      <g class="province-dot" data-name="Guangdong (Yangjiang)" data-cap="New factory · Phase 1 hit 85% utilization by Jun 2025" data-pipeline="Yangjiang Qingzhou + Yangxi Shaba wind farms">
+        <circle cx="592" cy="502" r="26" fill="url(#hqGlow)" opacity="0.55"/>
+        <circle cx="592" cy="502" r="11" fill="rgba(0,212,255,0.3)" stroke="#00d4ff" stroke-width="2"/>
+        <rect x="586" y="496" width="12" height="12" fill="#00d4ff" rx="1.5"/>
+        <text x="612" y="499" fill="#00d4ff" font-size="12" font-family="Inter" font-weight="700">Yangjiang</text>
+        <text x="612" y="511" fill="#9aa6bd" font-size="9" font-family="Inter">Guangdong · ramping</text>
       </g>
 
-      <!-- Guangxi (Beihai) -->
-      <g class="province-dot" data-name="Guangxi (Beihai)" data-cap="New investment agreement signed · Southern hub" data-pipeline="Future South China Sea expansion">
-        <circle cx="395" cy="485" r="14" fill="rgba(0,212,255,0.2)" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle cx="395" cy="485" r="5" fill="#00d4ff"/>
-        <text x="305" y="490" fill="#e8eef7" font-size="11" font-family="Inter">Guangxi (Beihai)</text>
+      <!-- Guangxi / Beihai (manufacturing) -->
+      <g class="province-dot" data-name="Guangxi (Beihai)" data-cap="NEW investment agreement signed · Southern hub" data-pipeline="Future South China Sea / ASEAN gateway">
+        <circle cx="500" cy="528" r="22" fill="url(#cnGlow)" opacity="0.5"/>
+        <circle cx="500" cy="528" r="9" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="1.5"/>
+        <rect x="495" y="523" width="10" height="10" fill="#00d4ff" rx="1.5"/>
+        <text x="396" y="524" fill="#00d4ff" font-size="11" font-family="Inter" font-weight="600" text-anchor="end">Beihai</text>
+        <text x="396" y="536" fill="#9aa6bd" font-size="9" font-family="Inter" text-anchor="end">Guangxi · new investment</text>
       </g>
 
-      <!-- Hainan -->
-      <g class="province-dot" data-name="Hainan / South China Sea" data-cap="CNOOC deep-sea oil & gas projects" data-pipeline="Kaiping 11-4, Lingshui umbilicals">
-        <circle cx="420" cy="540" r="12" fill="rgba(255,122,69,0.2)" stroke="#ff7a45" stroke-width="1.5"/>
-        <circle cx="420" cy="540" r="4" fill="#ff7a45"/>
-        <text x="438" y="545" fill="#ff7a45" font-size="11" font-family="Inter">Hainan / CNOOC</text>
+      <!-- South China Sea / CNOOC oil & gas -->
+      <g class="province-dot" data-name="South China Sea (CNOOC)" data-cap="Deep-sea oil &amp; gas umbilical projects" data-pipeline="Kaiping 11-4 · Lingshui · Guanlan">
+        <circle cx="518" cy="588" r="20" fill="url(#oilGlow)" opacity="0.6"/>
+        <circle cx="518" cy="588" r="8" fill="rgba(255,122,69,0.22)" stroke="#ff7a45" stroke-width="1.5"/>
+        <circle cx="518" cy="588" r="3.5" fill="#ff7a45"/>
+        <text x="536" y="585" fill="#ff7a45" font-size="11" font-family="Inter" font-weight="600">CNOOC umbilicals</text>
+        <text x="536" y="598" fill="#9aa6bd" font-size="9" font-family="Inter">Kaiping · Lingshui</text>
       </g>
 
-      <!-- Title -->
-      <text x="100" y="540" fill="#6a7691" font-size="10" font-family="Inter">★ HQ · ◯ Manufacturing · ○ Offshore wind demand · 🛢 Oil & gas</text>
+      <!-- DHG-07 shipping route to Europe -->
+      <g opacity="0.55">
+        <path d="M 660 378 Q 800 380, 875 365" fill="none" stroke="#00d4ff" stroke-width="1.4" stroke-dasharray="5,4"/>
+        <polygon points="870,360 882,365 870,370" fill="#00d4ff"/>
+        <text x="800" y="396" fill="#00d4ff" font-size="9" font-family="Inter" font-style="italic">DHG-07 → Europe</text>
+      </g>
+
+      <!-- Inset legend -->
+      <g transform="translate(35,470)">
+        <rect width="220" height="138" rx="10" fill="rgba(7,11,20,0.7)" stroke="#1f2940" stroke-width="1"/>
+        <text x="14" y="22" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="700">Footprint legend</text>
+        <rect x="16" y="34" width="10" height="10" fill="#00d4ff" rx="1.5"/>
+        <text x="34" y="43" fill="#9aa6bd" font-size="10" font-family="Inter">Manufacturing facility</text>
+        <circle cx="21" cy="62" r="5" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="1"/>
+        <circle cx="21" cy="62" r="2" fill="#00d4ff"/>
+        <text x="34" y="65" fill="#9aa6bd" font-size="10" font-family="Inter">Offshore wind demand</text>
+        <circle cx="21" cy="82" r="5" fill="rgba(255,122,69,0.25)" stroke="#ff7a45" stroke-width="1"/>
+        <circle cx="21" cy="82" r="2" fill="#ff7a45"/>
+        <text x="34" y="85" fill="#9aa6bd" font-size="10" font-family="Inter">Oil &amp; gas (CNOOC)</text>
+        <polygon points="21,99 24,107 32,107 26,112 28,120 21,115 14,120 16,112 10,107 18,107" fill="#00d4ff"/>
+        <text x="34" y="115" fill="#9aa6bd" font-size="10" font-family="Inter">HQ · Ningbo</text>
+      </g>
     </svg>
 
     <div class="map-legend">
-      <div class="map-legend-item"><div class="map-legend-dot" style="background:#00d4ff"></div>Offshore wind / submarine cable</div>
-      <div class="map-legend-item"><div class="map-legend-dot" style="background:#ff7a45"></div>Oil & gas (CNOOC umbilicals)</div>
-      <div class="map-legend-item" style="margin-left:auto;color:var(--text-mute);font-size:11px">Hover any province for detail</div>
+      <div class="map-legend-item" style="margin-left:auto;color:var(--text-mute);font-size:11px">↑ Hover any marker for project detail · 工 = factory · ★ = HQ</div>
     </div>
     <div class="province-tooltip" id="provinceTooltip"></div>
   </div>
@@ -1028,94 +1139,230 @@ footer ul li{margin-bottom:6px}
   </div>
 
   <div class="map-wrap">
-    <svg viewBox="0 0 800 460" class="map-svg" xmlns="http://www.w3.org/2000/svg">
-      <!-- Stylized Europe / North Atlantic -->
+    <svg viewBox="0 0 900 600" class="map-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
       <defs>
         <linearGradient id="oceanG" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#0a1426"/>
-          <stop offset="100%" stop-color="#0e1a30"/>
+          <stop offset="0%" stop-color="#0a1830"/>
+          <stop offset="100%" stop-color="#070d1a"/>
         </linearGradient>
+        <pattern id="eurGrid" width="60" height="60" patternUnits="userSpaceOnUse">
+          <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(0,212,255,0.04)" stroke-width="1"/>
+        </pattern>
+        <radialGradient id="prjGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="grnGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#3ddc97" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#3ddc97" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="ylwGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#f5c542" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#f5c542" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="prpGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#9b6dff" stop-opacity="0.5"/>
+          <stop offset="100%" stop-color="#9b6dff" stop-opacity="0"/>
+        </radialGradient>
       </defs>
-      <rect width="800" height="460" fill="url(#oceanG)"/>
+      <rect width="900" height="600" fill="url(#oceanG)"/>
+      <rect width="900" height="600" fill="url(#eurGrid)"/>
 
-      <!-- Land masses (very stylised) -->
-      <!-- UK -->
-      <path d="M 340 110 L 360 95 L 385 100 L 395 130 L 388 160 L 370 180 L 350 175 L 335 155 L 332 130 Z" fill="#1a2235" stroke="#1f2940"/>
+      <!-- ===== Land masses (recognizable simplified outlines) ===== -->
+
+      <!-- Scandinavia (Norway/Sweden) -->
+      <path d="
+        M 590 50 L 640 38 L 680 55 L 712 88 L 730 130
+        L 720 165 L 700 188 L 670 200 L 632 195 L 600 175
+        L 575 145 L 568 108 L 575 75 Z
+      " fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
+      <text x="650" y="125" fill="#3a4670" font-size="11" font-family="Inter" text-anchor="middle">Norway/Sweden</text>
+
+      <!-- Scotland + England (UK) — recognizable elongated shape -->
+      <path d="
+        M 365 130
+        L 380 115 L 405 118 L 422 135
+        L 425 160
+        L 410 180
+        L 416 200
+        L 432 230
+        L 428 260
+        L 410 285
+        L 388 295
+        L 365 290
+        L 352 268
+        L 348 240
+        L 358 215
+        L 370 195
+        L 360 170
+        L 350 148
+        Z
+      " fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.5"/>
+      <text x="392" y="222" fill="#5a6790" font-size="11" font-family="Inter" font-weight="500" text-anchor="middle">UK</text>
+
       <!-- Ireland -->
-      <path d="M 290 130 L 310 125 L 320 145 L 315 165 L 295 165 L 285 145 Z" fill="#1a2235" stroke="#1f2940"/>
+      <path d="M 280 195 L 318 190 L 333 218 L 326 248 L 300 258 L 275 245 L 268 222 Z"
+            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
+      <text x="300" y="228" fill="#3a4670" font-size="10" font-family="Inter" text-anchor="middle">Ireland</text>
+
+      <!-- Denmark -->
+      <path d="M 530 215 L 558 212 L 565 238 L 548 248 L 532 240 Z"
+            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1"/>
+      <text x="545" y="232" fill="#3a4670" font-size="9" font-family="Inter" text-anchor="middle">DK</text>
+
+      <!-- Netherlands + Belgium -->
+      <path d="M 490 270 L 528 265 L 540 285 L 530 305 L 502 308 L 488 290 Z"
+            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
+      <text x="510" y="290" fill="#3a4670" font-size="9" font-family="Inter" text-anchor="middle">NL/BE</text>
+
+      <!-- Germany -->
+      <path d="M 540 248 L 605 245 L 625 275 L 622 320 L 595 340 L 555 335 L 538 308 L 535 278 Z"
+            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
+      <text x="580" y="295" fill="#5a6790" font-size="11" font-family="Inter" font-weight="500" text-anchor="middle">Germany</text>
+
       <!-- France -->
-      <path d="M 380 200 L 430 195 L 460 215 L 470 245 L 460 270 L 430 280 L 400 275 L 385 260 L 380 230 Z" fill="#1a2235" stroke="#1f2940"/>
-      <!-- Spain -->
-      <path d="M 340 280 L 400 285 L 420 320 L 410 350 L 360 358 L 335 340 Z" fill="#1a2235" stroke="#1f2940"/>
-      <!-- Germany / Netherlands -->
-      <path d="M 450 165 L 510 155 L 540 175 L 545 210 L 520 225 L 475 215 L 460 195 Z" fill="#1a2235" stroke="#1f2940"/>
-      <!-- Scandinavia -->
-      <path d="M 480 50 L 540 40 L 580 60 L 590 110 L 555 140 L 510 130 L 490 100 Z" fill="#1a2235" stroke="#1f2940"/>
+      <path d="
+        M 412 305
+        L 470 298 L 502 320 L 515 358
+        L 505 398 L 480 425 L 440 432
+        L 412 422 L 395 398 L 388 360
+        L 395 328 Z
+      " fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.5"/>
+      <text x="455" y="370" fill="#5a6790" font-size="12" font-family="Inter" font-weight="500" text-anchor="middle">France</text>
+
+      <!-- Iberia (Spain/Portugal) -->
+      <path d="M 350 432 L 470 438 L 488 468 L 475 498 L 380 505 L 345 498 L 335 468 Z"
+            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
+      <text x="408" y="475" fill="#5a6790" font-size="11" font-family="Inter" text-anchor="middle">Spain</text>
+
+      <!-- Italy -->
+      <path d="M 560 348 L 585 345 L 605 385 L 622 425 L 612 448 L 595 432 L 578 405 L 565 378 Z"
+            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
+      <text x="592" y="405" fill="#3a4670" font-size="10" font-family="Inter" text-anchor="middle">Italy</text>
+
       <!-- Morocco -->
-      <path d="M 320 380 L 380 388 L 405 410 L 395 430 L 350 432 L 320 415 Z" fill="#1a2235" stroke="#1f2940"/>
+      <path d="M 340 515 L 432 515 L 452 540 L 438 568 L 388 572 L 355 562 L 338 540 Z"
+            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
+      <text x="390" y="545" fill="#3a4670" font-size="10" font-family="Inter" text-anchor="middle">Morocco</text>
 
-      <!-- Projects -->
-      <!-- Inch Cape (Scotland east coast) -->
+      <!-- ===== Sea labels ===== -->
+      <text x="150" y="320" fill="#3a4670" font-size="12" font-family="Inter" font-style="italic" opacity="0.6">North Atlantic</text>
+      <text x="490" y="240" fill="#3a4670" font-size="11" font-family="Inter" font-style="italic" opacity="0.6">North Sea</text>
+      <text x="600" y="505" fill="#3a4670" font-size="11" font-family="Inter" font-style="italic" opacity="0.6">Mediterranean</text>
+      <text x="240" y="525" fill="#3a4670" font-size="10" font-family="Inter" font-style="italic" opacity="0.6">Atlantic</text>
+
+      <!-- ===== XLinks Morocco-UK HVDC route ===== -->
+      <path d="M 390 530 Q 200 400, 250 290 Q 295 215, 385 230"
+            fill="none" stroke="#f5c542" stroke-width="2.5" stroke-dasharray="6,4" opacity="0.7"/>
+      <text x="170" y="395" fill="#f5c542" font-size="10" font-family="Inter" font-style="italic">XLinks HVDC · 4,000km</text>
+      <text x="170" y="408" fill="#9aa6bd" font-size="9" font-family="Inter">solar → UK</text>
+
+      <!-- ===== Ningbo → UK shipping route ===== -->
+      <path d="M 30 65 Q 200 80, 360 195" fill="none" stroke="#00d4ff" stroke-width="1.3" stroke-dasharray="4,4" opacity="0.45"/>
+      <text x="40" y="58" fill="#00d4ff" font-size="9" font-family="Inter" font-style="italic">DHG-07 from Ningbo →</text>
+
+      <!-- ===== PROJECT MARKERS ===== -->
+
+      <!-- Inch Cape (delivered, east Scotland) -->
       <g>
-        <circle cx="375" cy="105" r="10" fill="#3ddc97" opacity="0.3"/>
-        <circle cx="375" cy="105" r="5" fill="#3ddc97"/>
-        <text x="395" y="100" fill="#3ddc97" font-size="11" font-family="Inter" font-weight="600">Inch Cape</text>
-        <text x="395" y="113" fill="#9aa6bd" font-size="9" font-family="Inter">UK · RMB 1.8bn · Grid 2027</text>
+        <circle cx="420" cy="175" r="22" fill="url(#grnGlow)"/>
+        <circle cx="420" cy="175" r="10" fill="rgba(61,220,151,0.3)" stroke="#3ddc97" stroke-width="2"/>
+        <circle cx="420" cy="175" r="4.5" fill="#3ddc97"/>
+        <text x="442" y="170" fill="#3ddc97" font-size="12" font-family="Inter" font-weight="700">✓ Inch Cape</text>
+        <text x="442" y="183" fill="#9aa6bd" font-size="10" font-family="Inter">RMB 1.8bn · UK · 2027 grid</text>
       </g>
 
-      <!-- SSEN Skye-Harris -->
+      <!-- SSEN Skye-Harris (NW Scotland) -->
       <g>
-        <circle cx="345" cy="80" r="8" fill="#00d4ff" opacity="0.3"/>
-        <circle cx="345" cy="80" r="4" fill="#00d4ff"/>
-        <text x="200" y="80" fill="#00d4ff" font-size="10" font-family="Inter">SSEN Skye-Harris</text>
+        <circle cx="368" cy="148" r="16" fill="url(#prjGlow)"/>
+        <circle cx="368" cy="148" r="7" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="368" cy="148" r="3" fill="#00d4ff"/>
+        <line x1="200" y1="148" x2="360" y2="148" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="3,3" opacity="0.4"/>
+        <text x="195" y="146" fill="#00d4ff" font-size="11" font-family="Inter" font-weight="600" text-anchor="end">SSEN Skye-Harris</text>
+        <text x="195" y="159" fill="#9aa6bd" font-size="9" font-family="Inter" text-anchor="end">Earlier UK delivery</text>
       </g>
 
-      <!-- XLCC project (Scotland) -->
+      <!-- XLCC (Scotland) -->
       <g>
-        <circle cx="358" cy="145" r="9" fill="#9b6dff" opacity="0.3"/>
-        <circle cx="358" cy="145" r="4" fill="#9b6dff"/>
-        <text x="370" y="148" fill="#9b6dff" font-size="10" font-family="Inter">XLCC (8.5% stake)</text>
+        <circle cx="390" cy="205" r="18" fill="url(#prpGlow)"/>
+        <circle cx="390" cy="205" r="8" fill="rgba(155,109,255,0.28)" stroke="#9b6dff" stroke-width="1.5"/>
+        <circle cx="390" cy="205" r="3.5" fill="#9b6dff"/>
+        <line x1="200" y1="215" x2="380" y2="208" stroke="#9b6dff" stroke-width="0.7" stroke-dasharray="3,3" opacity="0.4"/>
+        <text x="195" y="213" fill="#9b6dff" font-size="11" font-family="Inter" font-weight="600" text-anchor="end">XLCC · 8.5% stake</text>
+        <text x="195" y="226" fill="#9aa6bd" font-size="9" font-family="Inter" text-anchor="end">Scottish HVDC producer</text>
       </g>
 
-      <!-- France 10GW tender -->
+      <!-- France AO10 / 10GW (W France/Brittany) -->
       <g>
-        <circle cx="415" cy="230" r="9" fill="#00d4ff" opacity="0.3"/>
-        <circle cx="415" cy="230" r="4" fill="#00d4ff"/>
-        <text x="430" y="232" fill="#00d4ff" font-size="10" font-family="Inter">France 10GW tender</text>
+        <circle cx="420" cy="345" r="18" fill="url(#prjGlow)"/>
+        <circle cx="420" cy="345" r="8" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="420" cy="345" r="3.5" fill="#00d4ff"/>
+        <line x1="240" y1="350" x2="410" y2="347" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="3,3" opacity="0.4"/>
+        <text x="235" y="348" fill="#00d4ff" font-size="11" font-family="Inter" font-weight="600" text-anchor="end">France 10GW tender</text>
+        <text x="235" y="361" fill="#9aa6bd" font-size="9" font-family="Inter" text-anchor="end">AO10 fall 2026 · 20-yr CfD</text>
       </g>
 
-      <!-- Germany / Hamburg -->
+      <!-- UK AR7 marker -->
       <g>
-        <circle cx="495" cy="180" r="8" fill="#00d4ff" opacity="0.3"/>
-        <circle cx="495" cy="180" r="4" fill="#00d4ff"/>
-        <text x="510" y="182" fill="#00d4ff" font-size="10" font-family="Inter">Hamburg Declaration 100GW</text>
+        <circle cx="408" cy="245" r="14" fill="url(#prjGlow)"/>
+        <circle cx="408" cy="245" r="6" fill="rgba(0,212,255,0.22)" stroke="#00d4ff" stroke-width="1.4"/>
+        <circle cx="408" cy="245" r="2.8" fill="#00d4ff"/>
+        <line x1="240" y1="260" x2="398" y2="247" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="3,3" opacity="0.4"/>
+        <text x="235" y="258" fill="#00d4ff" font-size="11" font-family="Inter" font-weight="600" text-anchor="end">UK AR7 auction</text>
+        <text x="235" y="271" fill="#9aa6bd" font-size="9" font-family="Inter" text-anchor="end">8.4GW · £81/MWh · 20yr</text>
       </g>
 
-      <!-- Netherlands -->
+      <!-- Hamburg / North Sea -->
       <g>
-        <circle cx="470" cy="190" r="7" fill="#00d4ff" opacity="0.3"/>
-        <circle cx="470" cy="190" r="3" fill="#00d4ff"/>
+        <circle cx="565" cy="270" r="19" fill="url(#prjGlow)"/>
+        <circle cx="565" cy="270" r="8" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="565" cy="270" r="3.5" fill="#00d4ff"/>
+        <text x="585" y="267" fill="#00d4ff" font-size="11" font-family="Inter" font-weight="600">Hamburg Declaration</text>
+        <text x="585" y="280" fill="#9aa6bd" font-size="9" font-family="Inter">100GW North Sea by 2050</text>
       </g>
 
-      <!-- Morocco-UK XLinks -->
+      <!-- Netherlands offshore -->
       <g>
-        <circle cx="345" cy="405" r="9" fill="#f5c542" opacity="0.3"/>
-        <circle cx="345" cy="405" r="4" fill="#f5c542"/>
-        <text x="365" y="410" fill="#f5c542" font-size="10" font-family="Inter" font-weight="600">XLinks Morocco-UK</text>
-        <text x="365" y="423" fill="#9aa6bd" font-size="9" font-family="Inter">2.4% stake · 4,000km HVDC</text>
-        <!-- Line from Morocco to UK -->
-        <path d="M 345 405 Q 320 270, 370 110" fill="none" stroke="#f5c542" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+        <circle cx="510" cy="288" r="12" fill="url(#prjGlow)"/>
+        <circle cx="510" cy="288" r="5" fill="rgba(0,212,255,0.2)" stroke="#00d4ff" stroke-width="1.2"/>
+        <circle cx="510" cy="288" r="2.5" fill="#00d4ff"/>
+        <text x="478" y="285" fill="#00d4ff" font-size="9" font-family="Inter" text-anchor="end">Netherlands</text>
+        <text x="478" y="296" fill="#9aa6bd" font-size="8" font-family="Inter" text-anchor="end">CfD framework</text>
       </g>
 
-      <!-- Ningbo to UK shipping route -->
+      <!-- Morocco XLinks origin -->
       <g>
-        <text x="20" y="40" fill="#9aa6bd" font-size="10" font-family="Inter">DHG-07 shipping route</text>
-        <path d="M 30 50 Q 200 25, 370 95" fill="none" stroke="#00d4ff" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
-        <text x="20" y="60" fill="#6a7691" font-size="9" font-family="Inter">Ningbo → Suez → UK</text>
+        <circle cx="390" cy="540" r="22" fill="url(#ylwGlow)"/>
+        <circle cx="390" cy="540" r="10" fill="rgba(245,197,66,0.28)" stroke="#f5c542" stroke-width="2"/>
+        <circle cx="390" cy="540" r="4.5" fill="#f5c542"/>
+        <text x="412" y="538" fill="#f5c542" font-size="12" font-family="Inter" font-weight="700">XLinks origin</text>
+        <text x="412" y="552" fill="#9aa6bd" font-size="10" font-family="Inter">2.4% stake · Morocco-UK</text>
       </g>
 
-      <!-- Title -->
-      <text x="20" y="440" fill="#6a7691" font-size="10" font-family="Inter">● Delivered  ● Active pipeline  ● Strategic stake  ●  Policy/tender</text>
+      <!-- ===== Legend ===== -->
+      <g transform="translate(640, 432)">
+        <rect width="232" height="148" rx="10" fill="rgba(7,11,20,0.78)" stroke="#1f2940" stroke-width="1"/>
+        <text x="14" y="22" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="700">European Pipeline Status</text>
+
+        <circle cx="22" cy="44" r="5" fill="rgba(61,220,151,0.3)" stroke="#3ddc97" stroke-width="1.5"/>
+        <circle cx="22" cy="44" r="2.2" fill="#3ddc97"/>
+        <text x="36" y="48" fill="#9aa6bd" font-size="10" font-family="Inter">Delivered · Inch Cape</text>
+
+        <circle cx="22" cy="66" r="5" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="22" cy="66" r="2.2" fill="#00d4ff"/>
+        <text x="36" y="70" fill="#9aa6bd" font-size="10" font-family="Inter">Active pipeline / tender</text>
+
+        <circle cx="22" cy="88" r="5" fill="rgba(155,109,255,0.28)" stroke="#9b6dff" stroke-width="1.5"/>
+        <circle cx="22" cy="88" r="2.2" fill="#9b6dff"/>
+        <text x="36" y="92" fill="#9aa6bd" font-size="10" font-family="Inter">Equity stake (XLCC)</text>
+
+        <circle cx="22" cy="110" r="5" fill="rgba(245,197,66,0.28)" stroke="#f5c542" stroke-width="1.5"/>
+        <circle cx="22" cy="110" r="2.2" fill="#f5c542"/>
+        <text x="36" y="114" fill="#9aa6bd" font-size="10" font-family="Inter">Long-term flagship</text>
+
+        <line x1="12" y1="130" x2="34" y2="130" stroke="#f5c542" stroke-width="2" stroke-dasharray="4,3"/>
+        <text x="38" y="134" fill="#9aa6bd" font-size="10" font-family="Inter">XLinks HVDC route</text>
+      </g>
     </svg>
   </div>
 
