@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
 <style>
 :root{
   --bg:#070b14;
@@ -931,155 +933,14 @@ footer ul li{margin-bottom:6px}
       <rect width="900" height="640" fill="url(#seaG)"/>
       <rect width="900" height="640" fill="url(#cnGrid)"/>
 
-      <!-- China mainland — recognizable outline with proper east coast detail -->
-      <path d="
-        M 120,180
-        C 160,148 215,128 285,125
-        L 395,114 L 510,108 L 600,116
-        C 658,128 695,148 712,170
-        L 720,195 L 712,222
-        C 690,232 666,235 668,250
-        L 695,256 L 722,264 L 740,278
-        C 730,300 707,304 692,294
-        L 678,316 L 665,344
-        C 657,352 650,358 654,366
-        L 663,376 L 670,386
-        C 660,406 650,428 642,452
-        L 622,482 L 596,510
-        C 582,520 562,528 552,524
-        L 532,512 L 502,526
-        C 480,535 456,538 454,531
-        C 442,520 425,516 418,524
-        L 372,532 L 312,525
-        L 262,498 L 215,460
-        L 175,420 L 152,372
-        L 138,322 L 130,272
-        L 124,222 Z
-      " fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.5"/>
+      <!-- d3 will populate these groups -->
+      <g id="chinaGeo"></g>
+      <g id="chinaLabels"></g>
+      <g id="chinaMarkers"></g>
 
-      <!-- Subtle interior province boundary hints -->
-      <g stroke="#1a2540" stroke-width="0.6" fill="none" opacity="0.5">
-        <path d="M 320 140 Q 380 220 430 310 T 510 460"/>
-        <path d="M 240 210 Q 320 320 410 400"/>
-        <path d="M 490 130 Q 540 240 560 340"/>
-      </g>
-
-      <!-- Hainan island -->
-      <ellipse cx="478" cy="582" rx="32" ry="20" fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
-      <text x="478" y="613" fill="#6a7691" font-size="10" font-family="Inter" text-anchor="middle">Hainan</text>
-
-      <!-- Taiwan -->
-      <path d="M 752 400 L 764 412 L 760 446 L 750 446 L 745 418 Z" fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
-      <text x="778 " y="428" fill="#6a7691" font-size="10" font-family="Inter">Taiwan</text>
-
-      <!-- Korea peninsula context -->
-      <path d="M 748 178 L 776 178 L 784 222 L 776 242 L 762 246 L 748 224 Z" fill="#0a1426" stroke="#1f2d4a" stroke-width="1" opacity="0.5"/>
-      <text x="762" y="212" fill="#3a4670" font-size="9" font-family="Inter" text-anchor="middle">Korea</text>
-
-      <!-- Sea labels -->
-      <text x="685" y="184" fill="#3a4670" font-size="10" font-family="Inter" font-style="italic" opacity="0.75">Bohai Sea</text>
-      <text x="790" y="295" fill="#3a4670" font-size="11" font-family="Inter" font-style="italic" opacity="0.75">East China Sea</text>
-      <text x="685" y="555" fill="#3a4670" font-size="11" font-family="Inter" font-style="italic" opacity="0.75">South China Sea</text>
-      <text x="220" y="320" fill="#3a4670" font-size="10" font-family="Inter" font-style="italic" opacity="0.6">Interior China</text>
-
-      <!-- Reference cities (context only) -->
-      <g opacity="0.55">
-        <circle cx="620" cy="192" r="2.5" fill="#7a8aa5"/>
-        <text x="628" y="196" fill="#7a8aa5" font-size="9" font-family="Inter">Beijing</text>
-      </g>
-      <g opacity="0.55">
-        <circle cx="676" cy="346" r="2.2" fill="#7a8aa5"/>
-        <text x="682" y="350" fill="#7a8aa5" font-size="9" font-family="Inter">Shanghai</text>
-      </g>
-      <g opacity="0.55">
-        <circle cx="582" cy="508" r="2" fill="#7a8aa5"/>
-        <text x="565" y="503" fill="#7a8aa5" font-size="9" font-family="Inter" text-anchor="end">Hong Kong</text>
-      </g>
-
-      <!-- ===== Province / facility markers ===== -->
-
-      <!-- Liaoning -->
-      <g class="province-dot" data-name="Liaoning" data-cap="Northern offshore wind cluster" data-pipeline="Future demand zone">
-        <circle cx="690" cy="195" r="20" fill="url(#cnGlow)" opacity="0.6"/>
-        <circle cx="690" cy="195" r="8" fill="rgba(0,212,255,0.22)" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle cx="690" cy="195" r="3.5" fill="#00d4ff"/>
-        <text x="708" y="186" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="600">Liaoning</text>
-        <text x="708" y="200" fill="#9aa6bd" font-size="9" font-family="Inter">Northern cluster</text>
-      </g>
-
-      <!-- Shandong / Yantai (manufacturing) -->
-      <g class="province-dot" data-name="Shandong (Yantai)" data-cap="NEW high-end submarine cable base · Bohai Orient subsidiary · 1–2 yrs to come online" data-pipeline="Projected RMB 3–4bn capacity">
-        <circle cx="700" cy="262" r="26" fill="url(#hqGlow)" opacity="0.6"/>
-        <circle cx="700" cy="262" r="11" fill="rgba(0,212,255,0.3)" stroke="#00d4ff" stroke-width="2"/>
-        <rect x="694" y="256" width="12" height="12" fill="#00d4ff" rx="1.5"/>
-        <text x="720" y="258" fill="#00d4ff" font-size="12" font-family="Inter" font-weight="700">Yantai</text>
-        <text x="720" y="271" fill="#9aa6bd" font-size="9" font-family="Inter">Shandong · greenfield</text>
-      </g>
-
-      <!-- Jiangsu (demand) -->
-      <g class="province-dot" data-name="Jiangsu" data-cap="Demand hub · CGN Fanshi I/II projects · RMB 1.7bn" data-pipeline="Grid connect 2025/2026">
-        <circle cx="676" cy="324" r="20" fill="url(#cnGlow)" opacity="0.55"/>
-        <circle cx="676" cy="324" r="8" fill="rgba(0,212,255,0.22)" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle cx="676" cy="324" r="3.5" fill="#00d4ff"/>
-        <text x="694" y="320" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="600">Jiangsu</text>
-        <text x="694" y="333" fill="#9aa6bd" font-size="9" font-family="Inter">CGN Fanshi I/II</text>
-      </g>
-
-      <!-- Zhejiang / Ningbo HQ -->
-      <g class="province-dot" data-name="Zhejiang (Ningbo HQ)" data-cap="HQ + main factory · ~RMB 10bn annual capacity" data-pipeline="Core manufacturing hub since founding">
-        <circle cx="660" cy="378" r="34" fill="url(#hqGlow)" opacity="0.7"/>
-        <circle cx="660" cy="378" r="14" fill="rgba(0,212,255,0.35)" stroke="#00d4ff" stroke-width="2.5"/>
-        <polygon points="660,368 663,376 671,376 665,381 667,389 660,384 653,389 655,381 649,376 657,376" fill="#00d4ff"/>
-        <text x="680" y="373" fill="#00d4ff" font-size="13" font-family="Inter" font-weight="800">Ningbo HQ</text>
-        <text x="680" y="387" fill="#9aa6bd" font-size="9" font-family="Inter">Zhejiang · main factory</text>
-      </g>
-
-      <!-- Fujian -->
-      <g class="province-dot" data-name="Fujian" data-cap="Active offshore wind buildout coastline" data-pipeline="Multiple TGC + utility projects">
-        <circle cx="640" cy="445" r="18" fill="url(#cnGlow)" opacity="0.45"/>
-        <circle cx="640" cy="445" r="7" fill="rgba(0,212,255,0.2)" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle cx="640" cy="445" r="3" fill="#00d4ff"/>
-        <text x="656" y="441" fill="#e8eef7" font-size="11" font-family="Inter">Fujian</text>
-        <text x="656" y="453" fill="#9aa6bd" font-size="9" font-family="Inter">Active coastline</text>
-      </g>
-
-      <!-- Guangdong / Yangjiang (manufacturing) -->
-      <g class="province-dot" data-name="Guangdong (Yangjiang)" data-cap="New factory · Phase 1 hit 85% utilization by Jun 2025" data-pipeline="Yangjiang Qingzhou + Yangxi Shaba wind farms">
-        <circle cx="592" cy="502" r="26" fill="url(#hqGlow)" opacity="0.55"/>
-        <circle cx="592" cy="502" r="11" fill="rgba(0,212,255,0.3)" stroke="#00d4ff" stroke-width="2"/>
-        <rect x="586" y="496" width="12" height="12" fill="#00d4ff" rx="1.5"/>
-        <text x="612" y="499" fill="#00d4ff" font-size="12" font-family="Inter" font-weight="700">Yangjiang</text>
-        <text x="612" y="511" fill="#9aa6bd" font-size="9" font-family="Inter">Guangdong · ramping</text>
-      </g>
-
-      <!-- Guangxi / Beihai (manufacturing) -->
-      <g class="province-dot" data-name="Guangxi (Beihai)" data-cap="NEW investment agreement signed · Southern hub" data-pipeline="Future South China Sea / ASEAN gateway">
-        <circle cx="500" cy="528" r="22" fill="url(#cnGlow)" opacity="0.5"/>
-        <circle cx="500" cy="528" r="9" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="1.5"/>
-        <rect x="495" y="523" width="10" height="10" fill="#00d4ff" rx="1.5"/>
-        <text x="396" y="524" fill="#00d4ff" font-size="11" font-family="Inter" font-weight="600" text-anchor="end">Beihai</text>
-        <text x="396" y="536" fill="#9aa6bd" font-size="9" font-family="Inter" text-anchor="end">Guangxi · new investment</text>
-      </g>
-
-      <!-- South China Sea / CNOOC oil & gas -->
-      <g class="province-dot" data-name="South China Sea (CNOOC)" data-cap="Deep-sea oil &amp; gas umbilical projects" data-pipeline="Kaiping 11-4 · Lingshui · Guanlan">
-        <circle cx="518" cy="588" r="20" fill="url(#oilGlow)" opacity="0.6"/>
-        <circle cx="518" cy="588" r="8" fill="rgba(255,122,69,0.22)" stroke="#ff7a45" stroke-width="1.5"/>
-        <circle cx="518" cy="588" r="3.5" fill="#ff7a45"/>
-        <text x="536" y="585" fill="#ff7a45" font-size="11" font-family="Inter" font-weight="600">CNOOC umbilicals</text>
-        <text x="536" y="598" fill="#9aa6bd" font-size="9" font-family="Inter">Kaiping · Lingshui</text>
-      </g>
-
-      <!-- DHG-07 shipping route to Europe -->
-      <g opacity="0.55">
-        <path d="M 660 378 Q 800 380, 875 365" fill="none" stroke="#00d4ff" stroke-width="1.4" stroke-dasharray="5,4"/>
-        <polygon points="870,360 882,365 870,370" fill="#00d4ff"/>
-        <text x="800" y="396" fill="#00d4ff" font-size="9" font-family="Inter" font-style="italic">DHG-07 → Europe</text>
-      </g>
-
-      <!-- Inset legend -->
-      <g transform="translate(35,470)">
-        <rect width="220" height="138" rx="10" fill="rgba(7,11,20,0.7)" stroke="#1f2940" stroke-width="1"/>
+      <!-- Static legend -->
+      <g transform="translate(35,478)">
+        <rect width="220" height="138" rx="10" fill="rgba(7,11,20,0.78)" stroke="#1f2940" stroke-width="1"/>
         <text x="14" y="22" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="700">Footprint legend</text>
         <rect x="16" y="34" width="10" height="10" fill="#00d4ff" rx="1.5"/>
         <text x="34" y="43" fill="#9aa6bd" font-size="10" font-family="Inter">Manufacturing facility</text>
@@ -1092,6 +953,9 @@ footer ul li{margin-bottom:6px}
         <polygon points="21,99 24,107 32,107 26,112 28,120 21,115 14,120 16,112 10,107 18,107" fill="#00d4ff"/>
         <text x="34" y="115" fill="#9aa6bd" font-size="10" font-family="Inter">HQ · Ningbo</text>
       </g>
+
+      <!-- Loading state -->
+      <text x="450" y="320" fill="#3a4670" font-size="12" font-family="Inter" text-anchor="middle" id="cnLoading">Loading geography…</text>
     </svg>
 
     <div class="map-legend">
@@ -1139,7 +1003,7 @@ footer ul li{margin-bottom:6px}
   </div>
 
   <div class="map-wrap">
-    <svg viewBox="0 0 900 600" class="map-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 900 600" class="map-svg" xmlns="http://www.w3.org/2000/svg" id="europeMap" preserveAspectRatio="xMidYMid meet">
       <defs>
         <linearGradient id="oceanG" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#0a1830"/>
@@ -1168,181 +1032,16 @@ footer ul li{margin-bottom:6px}
       <rect width="900" height="600" fill="url(#oceanG)"/>
       <rect width="900" height="600" fill="url(#eurGrid)"/>
 
-      <!-- ===== Land masses (recognizable simplified outlines) ===== -->
+      <!-- d3 populates these -->
+      <g id="europeGeo"></g>
+      <g id="europeRoutes"></g>
+      <g id="europeLabels"></g>
+      <g id="europeMarkers"></g>
 
-      <!-- Scandinavia (Norway/Sweden) -->
-      <path d="
-        M 590 50 L 640 38 L 680 55 L 712 88 L 730 130
-        L 720 165 L 700 188 L 670 200 L 632 195 L 600 175
-        L 575 145 L 568 108 L 575 75 Z
-      " fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
-      <text x="650" y="125" fill="#3a4670" font-size="11" font-family="Inter" text-anchor="middle">Norway/Sweden</text>
-
-      <!-- Scotland + England (UK) — recognizable elongated shape -->
-      <path d="
-        M 365 130
-        L 380 115 L 405 118 L 422 135
-        L 425 160
-        L 410 180
-        L 416 200
-        L 432 230
-        L 428 260
-        L 410 285
-        L 388 295
-        L 365 290
-        L 352 268
-        L 348 240
-        L 358 215
-        L 370 195
-        L 360 170
-        L 350 148
-        Z
-      " fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.5"/>
-      <text x="392" y="222" fill="#5a6790" font-size="11" font-family="Inter" font-weight="500" text-anchor="middle">UK</text>
-
-      <!-- Ireland -->
-      <path d="M 280 195 L 318 190 L 333 218 L 326 248 L 300 258 L 275 245 L 268 222 Z"
-            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
-      <text x="300" y="228" fill="#3a4670" font-size="10" font-family="Inter" text-anchor="middle">Ireland</text>
-
-      <!-- Denmark -->
-      <path d="M 530 215 L 558 212 L 565 238 L 548 248 L 532 240 Z"
-            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1"/>
-      <text x="545" y="232" fill="#3a4670" font-size="9" font-family="Inter" text-anchor="middle">DK</text>
-
-      <!-- Netherlands + Belgium -->
-      <path d="M 490 270 L 528 265 L 540 285 L 530 305 L 502 308 L 488 290 Z"
-            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
-      <text x="510" y="290" fill="#3a4670" font-size="9" font-family="Inter" text-anchor="middle">NL/BE</text>
-
-      <!-- Germany -->
-      <path d="M 540 248 L 605 245 L 625 275 L 622 320 L 595 340 L 555 335 L 538 308 L 535 278 Z"
-            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
-      <text x="580" y="295" fill="#5a6790" font-size="11" font-family="Inter" font-weight="500" text-anchor="middle">Germany</text>
-
-      <!-- France -->
-      <path d="
-        M 412 305
-        L 470 298 L 502 320 L 515 358
-        L 505 398 L 480 425 L 440 432
-        L 412 422 L 395 398 L 388 360
-        L 395 328 Z
-      " fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.5"/>
-      <text x="455" y="370" fill="#5a6790" font-size="12" font-family="Inter" font-weight="500" text-anchor="middle">France</text>
-
-      <!-- Iberia (Spain/Portugal) -->
-      <path d="M 350 432 L 470 438 L 488 468 L 475 498 L 380 505 L 345 498 L 335 468 Z"
-            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
-      <text x="408" y="475" fill="#5a6790" font-size="11" font-family="Inter" text-anchor="middle">Spain</text>
-
-      <!-- Italy -->
-      <path d="M 560 348 L 585 345 L 605 385 L 622 425 L 612 448 L 595 432 L 578 405 L 565 378 Z"
-            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
-      <text x="592" y="405" fill="#3a4670" font-size="10" font-family="Inter" text-anchor="middle">Italy</text>
-
-      <!-- Morocco -->
-      <path d="M 340 515 L 432 515 L 452 540 L 438 568 L 388 572 L 355 562 L 338 540 Z"
-            fill="#0f1a32" stroke="#1f2d4a" stroke-width="1.2"/>
-      <text x="390" y="545" fill="#3a4670" font-size="10" font-family="Inter" text-anchor="middle">Morocco</text>
-
-      <!-- ===== Sea labels ===== -->
-      <text x="150" y="320" fill="#3a4670" font-size="12" font-family="Inter" font-style="italic" opacity="0.6">North Atlantic</text>
-      <text x="490" y="240" fill="#3a4670" font-size="11" font-family="Inter" font-style="italic" opacity="0.6">North Sea</text>
-      <text x="600" y="505" fill="#3a4670" font-size="11" font-family="Inter" font-style="italic" opacity="0.6">Mediterranean</text>
-      <text x="240" y="525" fill="#3a4670" font-size="10" font-family="Inter" font-style="italic" opacity="0.6">Atlantic</text>
-
-      <!-- ===== XLinks Morocco-UK HVDC route ===== -->
-      <path d="M 390 530 Q 200 400, 250 290 Q 295 215, 385 230"
-            fill="none" stroke="#f5c542" stroke-width="2.5" stroke-dasharray="6,4" opacity="0.7"/>
-      <text x="170" y="395" fill="#f5c542" font-size="10" font-family="Inter" font-style="italic">XLinks HVDC · 4,000km</text>
-      <text x="170" y="408" fill="#9aa6bd" font-size="9" font-family="Inter">solar → UK</text>
-
-      <!-- ===== Ningbo → UK shipping route ===== -->
-      <path d="M 30 65 Q 200 80, 360 195" fill="none" stroke="#00d4ff" stroke-width="1.3" stroke-dasharray="4,4" opacity="0.45"/>
-      <text x="40" y="58" fill="#00d4ff" font-size="9" font-family="Inter" font-style="italic">DHG-07 from Ningbo →</text>
-
-      <!-- ===== PROJECT MARKERS ===== -->
-
-      <!-- Inch Cape (delivered, east Scotland) -->
-      <g>
-        <circle cx="420" cy="175" r="22" fill="url(#grnGlow)"/>
-        <circle cx="420" cy="175" r="10" fill="rgba(61,220,151,0.3)" stroke="#3ddc97" stroke-width="2"/>
-        <circle cx="420" cy="175" r="4.5" fill="#3ddc97"/>
-        <text x="442" y="170" fill="#3ddc97" font-size="12" font-family="Inter" font-weight="700">✓ Inch Cape</text>
-        <text x="442" y="183" fill="#9aa6bd" font-size="10" font-family="Inter">RMB 1.8bn · UK · 2027 grid</text>
-      </g>
-
-      <!-- SSEN Skye-Harris (NW Scotland) -->
-      <g>
-        <circle cx="368" cy="148" r="16" fill="url(#prjGlow)"/>
-        <circle cx="368" cy="148" r="7" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle cx="368" cy="148" r="3" fill="#00d4ff"/>
-        <line x1="200" y1="148" x2="360" y2="148" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="3,3" opacity="0.4"/>
-        <text x="195" y="146" fill="#00d4ff" font-size="11" font-family="Inter" font-weight="600" text-anchor="end">SSEN Skye-Harris</text>
-        <text x="195" y="159" fill="#9aa6bd" font-size="9" font-family="Inter" text-anchor="end">Earlier UK delivery</text>
-      </g>
-
-      <!-- XLCC (Scotland) -->
-      <g>
-        <circle cx="390" cy="205" r="18" fill="url(#prpGlow)"/>
-        <circle cx="390" cy="205" r="8" fill="rgba(155,109,255,0.28)" stroke="#9b6dff" stroke-width="1.5"/>
-        <circle cx="390" cy="205" r="3.5" fill="#9b6dff"/>
-        <line x1="200" y1="215" x2="380" y2="208" stroke="#9b6dff" stroke-width="0.7" stroke-dasharray="3,3" opacity="0.4"/>
-        <text x="195" y="213" fill="#9b6dff" font-size="11" font-family="Inter" font-weight="600" text-anchor="end">XLCC · 8.5% stake</text>
-        <text x="195" y="226" fill="#9aa6bd" font-size="9" font-family="Inter" text-anchor="end">Scottish HVDC producer</text>
-      </g>
-
-      <!-- France AO10 / 10GW (W France/Brittany) -->
-      <g>
-        <circle cx="420" cy="345" r="18" fill="url(#prjGlow)"/>
-        <circle cx="420" cy="345" r="8" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle cx="420" cy="345" r="3.5" fill="#00d4ff"/>
-        <line x1="240" y1="350" x2="410" y2="347" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="3,3" opacity="0.4"/>
-        <text x="235" y="348" fill="#00d4ff" font-size="11" font-family="Inter" font-weight="600" text-anchor="end">France 10GW tender</text>
-        <text x="235" y="361" fill="#9aa6bd" font-size="9" font-family="Inter" text-anchor="end">AO10 fall 2026 · 20-yr CfD</text>
-      </g>
-
-      <!-- UK AR7 marker -->
-      <g>
-        <circle cx="408" cy="245" r="14" fill="url(#prjGlow)"/>
-        <circle cx="408" cy="245" r="6" fill="rgba(0,212,255,0.22)" stroke="#00d4ff" stroke-width="1.4"/>
-        <circle cx="408" cy="245" r="2.8" fill="#00d4ff"/>
-        <line x1="240" y1="260" x2="398" y2="247" stroke="#00d4ff" stroke-width="0.7" stroke-dasharray="3,3" opacity="0.4"/>
-        <text x="235" y="258" fill="#00d4ff" font-size="11" font-family="Inter" font-weight="600" text-anchor="end">UK AR7 auction</text>
-        <text x="235" y="271" fill="#9aa6bd" font-size="9" font-family="Inter" text-anchor="end">8.4GW · £81/MWh · 20yr</text>
-      </g>
-
-      <!-- Hamburg / North Sea -->
-      <g>
-        <circle cx="565" cy="270" r="19" fill="url(#prjGlow)"/>
-        <circle cx="565" cy="270" r="8" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="1.5"/>
-        <circle cx="565" cy="270" r="3.5" fill="#00d4ff"/>
-        <text x="585" y="267" fill="#00d4ff" font-size="11" font-family="Inter" font-weight="600">Hamburg Declaration</text>
-        <text x="585" y="280" fill="#9aa6bd" font-size="9" font-family="Inter">100GW North Sea by 2050</text>
-      </g>
-
-      <!-- Netherlands offshore -->
-      <g>
-        <circle cx="510" cy="288" r="12" fill="url(#prjGlow)"/>
-        <circle cx="510" cy="288" r="5" fill="rgba(0,212,255,0.2)" stroke="#00d4ff" stroke-width="1.2"/>
-        <circle cx="510" cy="288" r="2.5" fill="#00d4ff"/>
-        <text x="478" y="285" fill="#00d4ff" font-size="9" font-family="Inter" text-anchor="end">Netherlands</text>
-        <text x="478" y="296" fill="#9aa6bd" font-size="8" font-family="Inter" text-anchor="end">CfD framework</text>
-      </g>
-
-      <!-- Morocco XLinks origin -->
-      <g>
-        <circle cx="390" cy="540" r="22" fill="url(#ylwGlow)"/>
-        <circle cx="390" cy="540" r="10" fill="rgba(245,197,66,0.28)" stroke="#f5c542" stroke-width="2"/>
-        <circle cx="390" cy="540" r="4.5" fill="#f5c542"/>
-        <text x="412" y="538" fill="#f5c542" font-size="12" font-family="Inter" font-weight="700">XLinks origin</text>
-        <text x="412" y="552" fill="#9aa6bd" font-size="10" font-family="Inter">2.4% stake · Morocco-UK</text>
-      </g>
-
-      <!-- ===== Legend ===== -->
+      <!-- Static legend -->
       <g transform="translate(640, 432)">
         <rect width="232" height="148" rx="10" fill="rgba(7,11,20,0.78)" stroke="#1f2940" stroke-width="1"/>
-        <text x="14" y="22" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="700">European Pipeline Status</text>
+        <text x="14" y="22" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="700">European pipeline status</text>
 
         <circle cx="22" cy="44" r="5" fill="rgba(61,220,151,0.3)" stroke="#3ddc97" stroke-width="1.5"/>
         <circle cx="22" cy="44" r="2.2" fill="#3ddc97"/>
@@ -1363,6 +1062,9 @@ footer ul li{margin-bottom:6px}
         <line x1="12" y1="130" x2="34" y2="130" stroke="#f5c542" stroke-width="2" stroke-dasharray="4,3"/>
         <text x="38" y="134" fill="#9aa6bd" font-size="10" font-family="Inter">XLinks HVDC route</text>
       </g>
+
+      <!-- Loading state -->
+      <text x="450" y="300" fill="#3a4670" font-size="12" font-family="Inter" text-anchor="middle" id="eurLoading">Loading geography…</text>
     </svg>
   </div>
 
@@ -2000,22 +1702,30 @@ const fadeObs = new IntersectionObserver(entries => {
 }, {threshold:.15});
 fadeEls.forEach(e => fadeObs.observe(e));
 
-// === Province map tooltip ===
+// === Province map tooltip via event delegation (works for d3-added elements) ===
 const tip = document.getElementById('provinceTooltip');
-document.querySelectorAll('.province-dot').forEach(dot => {
-  dot.addEventListener('mouseenter', e => {
-    const name = dot.dataset.name;
-    const cap = dot.dataset.cap;
-    const pipe = dot.dataset.pipeline;
-    tip.innerHTML = '<h5>'+name+'</h5><p>'+cap+'</p><p class="pt-val">'+pipe+'</p>';
-    tip.style.opacity = 1;
-  });
-  dot.addEventListener('mousemove', e => {
-    const wrap = document.querySelector('.map-wrap').getBoundingClientRect();
-    tip.style.left = (e.clientX - wrap.left + 14) + 'px';
-    tip.style.top  = (e.clientY - wrap.top + 14) + 'px';
-  });
-  dot.addEventListener('mouseleave', () => { tip.style.opacity = 0; });
+document.addEventListener('mouseover', e => {
+  if (!tip) return;
+  const dot = e.target.closest && e.target.closest('.province-dot');
+  if (!dot) return;
+  tip.innerHTML = '<h5>'+dot.dataset.name+'</h5><p>'+dot.dataset.cap+'</p><p class="pt-val">'+dot.dataset.pipeline+'</p>';
+  tip.style.opacity = 1;
+});
+document.addEventListener('mousemove', e => {
+  if (!tip) return;
+  const dot = e.target.closest && e.target.closest('.province-dot');
+  if (!dot) return;
+  const wrap = dot.closest('.map-wrap');
+  if (!wrap) return;
+  const r = wrap.getBoundingClientRect();
+  tip.style.left = (e.clientX - r.left + 14) + 'px';
+  tip.style.top  = (e.clientY - r.top  + 14) + 'px';
+});
+document.addEventListener('mouseout', e => {
+  if (!tip) return;
+  const dot = e.target.closest && e.target.closest('.province-dot');
+  if (!dot) return;
+  tip.style.opacity = 0;
 });
 
 // === Bull/Bear tabs ===
@@ -2315,6 +2025,299 @@ new Chart(document.getElementById('peerScatter'), {
     }
   }
 });
+
+/* ===== GEOGRAPHIC MAPS (d3 + TopoJSON) ===== */
+(async function renderMaps(){
+  let world;
+  try {
+    const res = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json');
+    world = await res.json();
+  } catch(err){
+    console.error('World atlas load failed', err);
+    const cnL = document.getElementById('cnLoading'); if (cnL) cnL.textContent = 'Failed to load geography';
+    const eL  = document.getElementById('eurLoading'); if (eL) eL.textContent = 'Failed to load geography';
+    return;
+  }
+  const countries = topojson.feature(world, world.objects.countries).features;
+  const getCountry = id => countries.find(c => String(c.id) === String(id));
+
+  // ===== CHINA MAP =====
+  (function renderChina(){
+    const W = 900, H = 640;
+    // ISO 3166-1 numeric codes
+    const focusIds   = ['156'];                          // China
+    const contextIds = ['158','410','408','392','704','608','764','418','116','496','643','398','156','356','050','104','458','360'];
+
+    const projection = d3.geoMercator()
+      .center([108, 33])
+      .scale(820)
+      .translate([W * 0.46, H * 0.50]);
+    const path = d3.geoPath().projection(projection);
+
+    const geo = d3.select('#chinaGeo');
+    countries.forEach(c => {
+      if (focusIds.includes(String(c.id)) || contextIds.includes(String(c.id))) {
+        const isFocus = focusIds.includes(String(c.id));
+        geo.append('path')
+          .attr('d', path(c))
+          .attr('fill', isFocus ? '#0f1a32' : '#0a1426')
+          .attr('stroke', isFocus ? '#1f2d4a' : '#1a2540')
+          .attr('stroke-width', isFocus ? 1.3 : 0.7)
+          .attr('opacity', isFocus ? 1 : 0.55);
+      }
+    });
+
+    const loader = document.getElementById('cnLoading'); if (loader) loader.remove();
+
+    // Sea labels (positioned by lat/lon, projected)
+    const lbl = d3.select('#chinaLabels');
+    const seas = [
+      {lon: 121, lat: 38.5, t: 'Bohai Sea',       s: 10, op: 0.7},
+      {lon: 126, lat: 30,   t: 'East China Sea',  s: 12, op: 0.7},
+      {lon: 116, lat: 15,   t: 'South China Sea', s: 12, op: 0.7},
+      {lon: 95,  lat: 36,   t: 'Interior China',  s: 10, op: 0.5},
+    ];
+    seas.forEach(s => {
+      const [x,y] = projection([s.lon, s.lat]);
+      lbl.append('text').attr('x',x).attr('y',y)
+        .attr('fill','#3a4670').attr('font-size',s.s)
+        .attr('font-family','Inter, sans-serif').attr('font-style','italic')
+        .attr('text-anchor','middle').attr('opacity',s.op).text(s.t);
+    });
+
+    // Reference cities (faded context)
+    const refs = [
+      {lon: 116.41, lat: 39.90, t: 'Beijing'},
+      {lon: 121.47, lat: 31.23, t: 'Shanghai'},
+      {lon: 114.16, lat: 22.30, t: 'Hong Kong'},
+    ];
+    refs.forEach(r => {
+      const [x,y] = projection([r.lon, r.lat]);
+      const g = lbl.append('g').attr('opacity', 0.55);
+      g.append('circle').attr('cx',x).attr('cy',y).attr('r',2.3).attr('fill','#7a8aa5');
+      g.append('text').attr('x',x+6).attr('y',y+3).attr('fill','#7a8aa5')
+        .attr('font-size',9).attr('font-family','Inter, sans-serif').text(r.t);
+    });
+
+    // Facility / demand / oil markers
+    const markers = [
+      {lon:121.55, lat:29.87, name:'Ningbo HQ',         sub:'Zhejiang · main factory',     type:'hq',     side:'right', cap:'HQ + main factory · ~RMB 10bn annual capacity',                pipe:'Core manufacturing hub since founding'},
+      {lon:121.45, lat:37.46, name:'Yantai',            sub:'Shandong · greenfield',       type:'mfg',    side:'right', cap:'NEW high-end submarine cable base (Bohai Orient) · 1–2 yrs',     pipe:'Projected RMB 3–4bn capacity'},
+      {lon:111.98, lat:21.86, name:'Yangjiang',         sub:'Guangdong · ramping',         type:'mfg',    side:'right', cap:'Phase 1 reached 85% utilization Jun 2025',                       pipe:'Yangjiang Qingzhou + Yangxi Shaba wind farms'},
+      {lon:109.12, lat:21.48, name:'Beihai',            sub:'Guangxi · new investment',    type:'mfg',    side:'left',  cap:'NEW investment agreement · Southern hub',                       pipe:'Future South China Sea / ASEAN gateway'},
+      {lon:121.61, lat:38.92, name:'Liaoning',          sub:'Northern cluster',            type:'demand', side:'left',  cap:'Northern offshore wind cluster',                                 pipe:'Future demand zone'},
+      {lon:120.13, lat:33.38, name:'Jiangsu',           sub:'CGN Fanshi I/II',             type:'demand', side:'left',  cap:'Demand hub · CGN Fanshi RMB 1.7bn order',                       pipe:'Grid connect 2025/2026'},
+      {lon:119.30, lat:26.07, name:'Fujian',            sub:'Active coastline',            type:'demand', side:'left',  cap:'Active offshore wind buildout',                                  pipe:'Multiple TGC + utility projects'},
+      {lon:113.5,  lat:19.5,  name:'CNOOC umbilicals',  sub:'Kaiping · Lingshui',          type:'oil',    side:'right', cap:'Deep-sea oil & gas umbilical projects',                          pipe:'Kaiping 11-4 · Lingshui · Guanlan'},
+    ];
+
+    const mk = d3.select('#chinaMarkers');
+    markers.forEach(m => {
+      const [x, y] = projection([m.lon, m.lat]);
+      const isOil  = m.type === 'oil';
+      const isHQ   = m.type === 'hq';
+      const isMfg  = m.type === 'mfg';
+      const color  = isOil ? '#ff7a45' : '#00d4ff';
+      const glow   = isOil ? 'url(#oilGlow)' : (isHQ ? 'url(#hqGlow)' : 'url(#cnGlow)');
+      const rGlow  = isHQ ? 30 : (isMfg ? 24 : 20);
+      const rOuter = isHQ ? 14 : (isMfg ? 11 : 9);
+      const sOuter = isHQ ? 2.5 : (isMfg ? 2 : 1.5);
+      const fillO  = isOil ? 'rgba(255,122,69,0.3)' : (isHQ ? 'rgba(0,212,255,0.35)' : 'rgba(0,212,255,0.25)');
+
+      const g = mk.append('g')
+        .attr('class', 'province-dot')
+        .attr('data-name', m.name)
+        .attr('data-cap', m.cap)
+        .attr('data-pipeline', m.pipe);
+
+      g.append('circle').attr('cx',x).attr('cy',y).attr('r',rGlow).attr('fill',glow).attr('opacity',0.6);
+      g.append('circle').attr('cx',x).attr('cy',y).attr('r',rOuter).attr('fill',fillO).attr('stroke',color).attr('stroke-width',sOuter);
+
+      if (isHQ) {
+        const pts = [
+          [x,y-8],[x+2.5,y-2.5],[x+8,y-2.5],[x+3.5,y+1],
+          [x+5,y+7],[x,y+3],[x-5,y+7],[x-3.5,y+1],
+          [x-8,y-2.5],[x-2.5,y-2.5]
+        ];
+        g.append('polygon').attr('points', pts.map(p=>p.join(',')).join(' ')).attr('fill',color);
+      } else if (isMfg) {
+        g.append('rect').attr('x',x-5).attr('y',y-5).attr('width',10).attr('height',10).attr('rx',1.5).attr('fill',color);
+      } else {
+        g.append('circle').attr('cx',x).attr('cy',y).attr('r',3.5).attr('fill',color);
+      }
+
+      const offX = m.side === 'left' ? -(rOuter+6) : (rOuter+6);
+      const ta = m.side === 'left' ? 'end' : 'start';
+      const lblColor = isHQ ? color : (isOil ? color : '#e8eef7');
+      const lblSize  = isHQ ? 13 : (isMfg ? 12 : 11);
+
+      g.append('text').attr('x',x+offX).attr('y',y-3).attr('text-anchor',ta)
+        .attr('fill',lblColor).attr('font-size',lblSize)
+        .attr('font-family','Inter, sans-serif').attr('font-weight',isHQ?800:600).text(m.name);
+      if (m.sub) {
+        g.append('text').attr('x',x+offX).attr('y',y+10).attr('text-anchor',ta)
+          .attr('fill','#9aa6bd').attr('font-size',9)
+          .attr('font-family','Inter, sans-serif').text(m.sub);
+      }
+    });
+
+    // DHG-07 arrow heading east toward Europe (off-frame)
+    const ningboPt = projection([121.55, 29.87]);
+    const route = d3.select('#chinaMarkers').append('g').attr('opacity', 0.55);
+    route.append('path')
+      .attr('d', `M ${ningboPt[0]} ${ningboPt[1]} Q ${W-100} ${ningboPt[1]-10}, ${W-15} ${ningboPt[1]-40}`)
+      .attr('fill','none').attr('stroke','#00d4ff').attr('stroke-width',1.4).attr('stroke-dasharray','5,4');
+    route.append('text').attr('x',W-110).attr('y',ningboPt[1]+18)
+      .attr('fill','#00d4ff').attr('font-size',9).attr('font-family','Inter, sans-serif')
+      .attr('font-style','italic').attr('text-anchor','end').text('DHG-07 → Europe');
+  })();
+
+  // ===== EUROPE MAP =====
+  (function renderEurope(){
+    const W = 900, H = 600;
+    const focusIds = ['826','372','250','276','528','056','208','504'];
+    const contextIds = ['724','620','578','752','246','352','380','756','040','616','203','703','348','705','191','070','688','300','008','100','642','804','112','498','440','428','233','442','438','492','020','643','792','012','788','434','268','233','233','388'];
+
+    const projection = d3.geoMercator()
+      .center([5, 50])
+      .scale(680)
+      .translate([W*0.5, H*0.55]);
+    const path = d3.geoPath().projection(projection);
+
+    const geo = d3.select('#europeGeo');
+    countries.forEach(c => {
+      const id = String(c.id);
+      if (focusIds.includes(id) || contextIds.includes(id)) {
+        const isFocus = focusIds.includes(id);
+        geo.append('path')
+          .attr('d', path(c))
+          .attr('fill', isFocus ? '#0f1a32' : '#0a1426')
+          .attr('stroke', isFocus ? '#1f2d4a' : '#1a2540')
+          .attr('stroke-width', isFocus ? 1.3 : 0.7)
+          .attr('opacity', isFocus ? 1 : 0.55);
+      }
+    });
+
+    const ldr = document.getElementById('eurLoading'); if (ldr) ldr.remove();
+
+    const lbl = d3.select('#europeLabels');
+    // Sea labels
+    [
+      {lon: -16, lat: 47, t: 'North Atlantic', s:12, op:0.65},
+      {lon: 3,   lat: 56, t: 'North Sea',      s:11, op:0.65},
+      {lon: 10,  lat: 38, t: 'Mediterranean',  s:11, op:0.6 },
+    ].forEach(s => {
+      const [x,y] = projection([s.lon, s.lat]);
+      lbl.append('text').attr('x',x).attr('y',y)
+        .attr('fill','#3a4670').attr('font-size',s.s)
+        .attr('font-family','Inter, sans-serif').attr('font-style','italic')
+        .attr('text-anchor','middle').attr('opacity',s.op).text(s.t);
+    });
+
+    // Country labels
+    [
+      {lon:-1.5, lat:53,   t:'UK',       big:true},
+      {lon:2.5,  lat:47,   t:'France',   big:true},
+      {lon:10,   lat:51,   t:'Germany',  big:true},
+      {lon:-8,   lat:53.4, t:'Ireland'},
+      {lon:-4,   lat:40,   t:'Spain'},
+      {lon:12,   lat:42,   t:'Italy'},
+      {lon:10,   lat:62,   t:'Norway'},
+      {lon:5,    lat:52.3, t:'NL'},
+      {lon:9.5,  lat:56,   t:'DK'},
+      {lon:-7,   lat:31,   t:'Morocco'},
+    ].forEach(c => {
+      const [x,y] = projection([c.lon, c.lat]);
+      lbl.append('text').attr('x',x).attr('y',y)
+        .attr('fill', c.big ? '#5a6790' : '#3a4670')
+        .attr('font-size', c.big ? 12 : 10)
+        .attr('font-family','Inter, sans-serif')
+        .attr('font-weight', c.big ? 500 : 400)
+        .attr('text-anchor','middle').text(c.t);
+    });
+
+    // XLinks Morocco -> UK route (Bezier curve through Atlantic)
+    const routes = d3.select('#europeRoutes');
+    const morocco = projection([-11, 28.5]);
+    const ukDest  = projection([-2.35, 56.45]);
+    const c1 = projection([-15, 38]);
+    const c2 = projection([-15, 50]);
+    routes.append('path')
+      .attr('d', `M ${morocco[0]} ${morocco[1]} C ${c1[0]} ${c1[1]}, ${c2[0]} ${c2[1]}, ${ukDest[0]} ${ukDest[1]}`)
+      .attr('fill','none').attr('stroke','#f5c542').attr('stroke-width',2.5)
+      .attr('stroke-dasharray','6,4').attr('opacity',0.75);
+
+    const xlMid = projection([-14, 42]);
+    routes.append('text').attr('x', xlMid[0]-6).attr('y', xlMid[1])
+      .attr('fill','#f5c542').attr('font-size',10).attr('font-family','Inter, sans-serif')
+      .attr('font-style','italic').attr('text-anchor','end').text('XLinks HVDC');
+    routes.append('text').attr('x', xlMid[0]-6).attr('y', xlMid[1]+13)
+      .attr('fill','#9aa6bd').attr('font-size',9).attr('font-family','Inter, sans-serif')
+      .attr('text-anchor','end').text('4,000 km · solar → UK');
+
+    // DHG-07 incoming arrow from China
+    routes.append('path').attr('d',`M 20 60 Q 200 70, 360 ${ukDest[1]}`)
+      .attr('fill','none').attr('stroke','#00d4ff').attr('stroke-width',1.3)
+      .attr('stroke-dasharray','4,4').attr('opacity',0.45);
+    routes.append('text').attr('x',30).attr('y',55)
+      .attr('fill','#00d4ff').attr('font-size',9).attr('font-family','Inter, sans-serif')
+      .attr('font-style','italic').text('DHG-07 from Ningbo →');
+
+    // Project markers
+    const projects = [
+      {lon:-2.35, lat:56.45, name:'✓ Inch Cape',          sub:'RMB 1.8bn · UK · 2027 grid', color:'#3ddc97', size:'lg', side:'right', leaderX: null},
+      {lon:-6.5,  lat:57.5,  name:'SSEN Skye-Harris',     sub:'Earlier UK delivery',         color:'#00d4ff', size:'md', side:'left',  leaderX: 200},
+      {lon:-4.92, lat:55.75, name:'XLCC · 8.5% stake',    sub:'Scottish HVDC producer',      color:'#9b6dff', size:'md', side:'left',  leaderX: 200},
+      {lon:-3,    lat:48.5,  name:'France 10GW tender',   sub:'AO10 fall 2026 · 20-yr CfD',  color:'#00d4ff', size:'md', side:'left',  leaderX: 235},
+      {lon:-1,    lat:52,    name:'UK AR7 auction',       sub:'8.4GW · £81/MWh · 20-yr',     color:'#00d4ff', size:'sm', side:'left',  leaderX: 235},
+      {lon:9.99,  lat:53.55, name:'Hamburg Declaration',  sub:'100GW N. Sea by 2050',        color:'#00d4ff', size:'md', side:'right', leaderX: null},
+      {lon:4.5,   lat:52.5,  name:'Netherlands',          sub:'CfD framework',               color:'#00d4ff', size:'sm', side:'left',  leaderX: null},
+      {lon:-11,   lat:28.5,  name:'XLinks origin',        sub:'2.4% stake · Morocco-UK',     color:'#f5c542', size:'lg', side:'right', leaderX: null},
+    ];
+
+    const mk = d3.select('#europeMarkers');
+    projects.forEach(p => {
+      const [x,y] = projection([p.lon, p.lat]);
+      const rGlow  = p.size==='lg'?22:(p.size==='md'?17:14);
+      const rOuter = p.size==='lg'?10:(p.size==='md'?7:6);
+      const rInner = p.size==='lg'?4.5:(p.size==='md'?3.5:3);
+      const sStroke = p.size==='lg'?2:1.5;
+      const glow = p.color==='#3ddc97'?'url(#grnGlow)':
+                   p.color==='#9b6dff'?'url(#prpGlow)':
+                   p.color==='#f5c542'?'url(#ylwGlow)':'url(#prjGlow)';
+      const ringFill = p.color==='#3ddc97'?'rgba(61,220,151,0.3)':
+                       p.color==='#9b6dff'?'rgba(155,109,255,0.28)':
+                       p.color==='#f5c542'?'rgba(245,197,66,0.28)':'rgba(0,212,255,0.25)';
+
+      const g = mk.append('g');
+      g.append('circle').attr('cx',x).attr('cy',y).attr('r',rGlow).attr('fill',glow);
+      g.append('circle').attr('cx',x).attr('cy',y).attr('r',rOuter).attr('fill',ringFill).attr('stroke',p.color).attr('stroke-width',sStroke);
+      g.append('circle').attr('cx',x).attr('cy',y).attr('r',rInner).attr('fill',p.color);
+
+      if (p.leaderX !== null && p.leaderX !== undefined) {
+        g.append('line').attr('x1',p.leaderX+5).attr('y1',y+3).attr('x2',x-rOuter-2).attr('y2',y)
+          .attr('stroke',p.color).attr('stroke-width',0.7).attr('stroke-dasharray','3,3').attr('opacity',0.4);
+      }
+
+      const offset = rOuter + 8;
+      const lx = p.side === 'left'
+        ? (p.leaderX !== null && p.leaderX !== undefined ? p.leaderX : x - offset)
+        : x + offset;
+      const ta = p.side === 'left' ? 'end' : 'start';
+      const lblSize = p.size==='lg'?12:11;
+
+      g.append('text').attr('x',lx).attr('y',y-2)
+        .attr('text-anchor',ta).attr('fill',p.color)
+        .attr('font-size',lblSize).attr('font-family','Inter, sans-serif')
+        .attr('font-weight',p.size==='lg'?700:600).text(p.name);
+      if (p.sub) {
+        g.append('text').attr('x',lx).attr('y',y+12)
+          .attr('text-anchor',ta).attr('fill','#9aa6bd')
+          .attr('font-size',9).attr('font-family','Inter, sans-serif').text(p.sub);
+      }
+    });
+  })();
+})();
 
 </script>
 
