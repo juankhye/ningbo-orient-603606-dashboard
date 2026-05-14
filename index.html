@@ -1,0 +1,2075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ningbo Orient (603606 CH) — Submarine Cable Research Dashboard</title>
+<meta name="description" content="First-principles research dashboard for Ningbo Orient Wires & Cables — China's #2 submarine cable manufacturer and a pure-play on the offshore wind buildout.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#070b14;
+  --bg-elev:#0e1422;
+  --card:#131a2b;
+  --card-2:#1a2238;
+  --border:#1f2940;
+  --border-soft:#161e30;
+  --text:#e8eef7;
+  --text-dim:#9aa6bd;
+  --text-mute:#6a7691;
+  --cyan:#00d4ff;
+  --cyan-soft:rgba(0,212,255,.12);
+  --copper:#ff7a45;
+  --copper-soft:rgba(255,122,69,.12);
+  --green:#3ddc97;
+  --red:#ff5470;
+  --yellow:#f5c542;
+  --purple:#9b6dff;
+  --gradient:linear-gradient(135deg,#00d4ff 0%,#0066ff 100%);
+  --gradient-copper:linear-gradient(135deg,#ff7a45 0%,#ff4d4d 100%);
+  --shadow:0 8px 32px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.55;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+/* ===== Ocean bg pattern ===== */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 0%,rgba(0,102,255,.13),transparent 60%),
+    radial-gradient(ellipse 50% 35% at 80% 100%,rgba(155,109,255,.08),transparent 60%),
+    radial-gradient(circle at 50% 50%,#0a1426 0%,#070b14 70%);
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:-1;opacity:.4;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,212,255,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,212,255,.04) 1px,transparent 1px);
+  background-size:50px 50px;
+}
+/* ===== Top Nav ===== */
+nav.topnav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,11,20,.85);
+  backdrop-filter:blur(20px) saturate(1.4);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);
+  border-bottom:1px solid var(--border);
+  padding:14px 32px;
+  display:flex;align-items:center;gap:24px;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:15px}
+.brand-mark{
+  width:34px;height:34px;border-radius:9px;
+  background:var(--gradient);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;color:#001a2e;font-size:14px;
+  box-shadow:0 0 24px rgba(0,212,255,.4);
+}
+.brand-text{display:flex;flex-direction:column;line-height:1.2}
+.brand-text small{font-size:10px;color:var(--text-mute);letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap;flex:1;justify-content:center}
+.nav-links a{
+  color:var(--text-dim);text-decoration:none;font-size:13px;font-weight:500;
+  padding:7px 13px;border-radius:8px;transition:all .15s;
+}
+.nav-links a:hover{color:var(--cyan);background:var(--cyan-soft)}
+.ticker-pill{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);padding:6px 14px;border-radius:30px;
+  border:1px solid var(--border);font-size:12px;font-family:'JetBrains Mono',monospace;
+}
+.ticker-pill .dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ===== Layout ===== */
+.container{max-width:1400px;margin:0 auto;padding:0 32px}
+section{padding:80px 0;position:relative}
+.section-header{margin-bottom:48px;max-width:900px}
+.section-eyebrow{
+  display:inline-block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--cyan);font-weight:600;margin-bottom:14px;
+  padding:5px 12px;background:var(--cyan-soft);border-radius:20px;
+  border:1px solid rgba(0,212,255,.22);
+}
+.section-title{font-size:clamp(28px,4vw,42px);font-weight:800;letter-spacing:-.02em;margin-bottom:14px;line-height:1.15}
+.section-title .accent{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.section-sub{color:var(--text-dim);font-size:16px;max-width:780px}
+
+/* ===== Hero ===== */
+.hero{padding:60px 0 80px;position:relative}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+@media(max-width:960px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;color:var(--cyan);font-weight:600;letter-spacing:.06em;
+  padding:6px 14px;background:var(--cyan-soft);border-radius:30px;
+  border:1px solid rgba(0,212,255,.25);margin-bottom:20px;
+}
+.hero h1{font-size:clamp(36px,5.5vw,60px);font-weight:800;letter-spacing:-.025em;line-height:1.05;margin-bottom:20px}
+.hero h1 .accent{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p.lede{font-size:18px;color:var(--text-dim);margin-bottom:32px;max-width:580px;line-height:1.65}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.btn{
+  padding:12px 22px;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer;
+  text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+  transition:all .15s;border:none;
+}
+.btn-primary{background:var(--gradient);color:#001a2e}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,212,255,.35)}
+.btn-ghost{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* ===== Hero KPI Card ===== */
+.hero-card{
+  background:linear-gradient(165deg,var(--card-2) 0%,var(--card) 100%);
+  border:1px solid var(--border);border-radius:24px;padding:36px;
+  position:relative;overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.hero-card::before{
+  content:'';position:absolute;top:-50%;right:-30%;width:80%;height:80%;
+  background:radial-gradient(circle,rgba(0,212,255,.18),transparent 70%);
+  pointer-events:none;
+}
+.hero-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;position:relative}
+.hero-card-ticker{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-mute);margin-bottom:4px}
+.hero-card-name{font-size:18px;font-weight:700}
+.hero-rating{
+  background:rgba(61,220,151,.15);color:var(--green);
+  padding:6px 12px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.06em;
+  border:1px solid rgba(61,220,151,.3);
+}
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;position:relative}
+.kpi-cell .kpi-label{font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.kpi-cell .kpi-value{font-size:30px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:4px}
+.kpi-cell .kpi-meta{font-size:12px;color:var(--text-dim)}
+.kpi-cell .kpi-up{color:var(--green)}
+.kpi-cell .kpi-down{color:var(--red)}
+
+/* ===== Stat Strip ===== */
+.stat-strip{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:0;
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  margin-top:60px;overflow:hidden;
+}
+@media(max-width:900px){.stat-strip{grid-template-columns:repeat(2,1fr)}}
+.stat-cell{padding:28px;border-right:1px solid var(--border);position:relative}
+.stat-cell:last-child{border-right:none}
+.stat-cell .num{font-size:34px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-.02em;color:var(--cyan);margin-bottom:6px}
+.stat-cell .lbl{font-size:12px;color:var(--text-dim);line-height:1.4}
+
+/* ===== Cards ===== */
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:28px;transition:border-color .2s;
+}
+.card:hover{border-color:rgba(0,212,255,.3)}
+.card h3{font-size:18px;font-weight:700;margin-bottom:8px}
+.card .subhead{color:var(--text-dim);font-size:14px;margin-bottom:20px}
+
+/* ===== Grids ===== */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+@media(max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:1fr}}
+
+/* ===== Chart wrapper ===== */
+.chart-wrap{position:relative;height:340px;width:100%}
+.chart-wrap.tall{height:420px}
+.chart-wrap.short{height:240px}
+
+/* ===== Anatomy figure ===== */
+.anatomy{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:36px;display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center;
+}
+@media(max-width:900px){.anatomy{grid-template-columns:1fr}}
+.anatomy-svg{width:100%;height:auto;max-height:380px}
+.anatomy-list{display:flex;flex-direction:column;gap:14px}
+.anatomy-item{display:flex;gap:14px;align-items:flex-start}
+.anatomy-num{
+  width:30px;height:30px;border-radius:8px;flex:0 0 30px;
+  background:var(--cyan-soft);color:var(--cyan);font-weight:700;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  font-family:'JetBrains Mono',monospace;
+}
+.anatomy-item h4{font-size:14px;font-weight:600;margin-bottom:3px}
+.anatomy-item p{font-size:13px;color:var(--text-dim);line-height:1.55}
+
+/* ===== Voltage Ladder ===== */
+.voltage-ladder{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap}
+.voltage-step{
+  flex:1;min-width:160px;
+  background:linear-gradient(165deg,var(--card-2),var(--card));
+  border:1px solid var(--border);border-radius:14px;padding:22px;
+  position:relative;overflow:hidden;
+}
+.voltage-step .kv{font-size:28px;font-weight:800;font-family:'JetBrains Mono',monospace;letter-spacing:-.02em}
+.voltage-step .v-type{font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.08em;margin:4px 0 14px}
+.voltage-step .v-desc{font-size:13px;color:var(--text-dim);line-height:1.55}
+.voltage-step .v-status{
+  display:inline-block;padding:3px 9px;font-size:10px;border-radius:20px;
+  font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-top:12px;
+}
+.voltage-step.current .v-status{background:rgba(61,220,151,.15);color:var(--green);border:1px solid rgba(61,220,151,.3)}
+.voltage-step.current{border-color:rgba(61,220,151,.4);box-shadow:0 0 32px rgba(61,220,151,.08)}
+.voltage-step.dev .v-status{background:rgba(245,197,66,.12);color:var(--yellow);border:1px solid rgba(245,197,66,.3)}
+.voltage-step.future .v-status{background:rgba(155,109,255,.12);color:var(--purple);border:1px solid rgba(155,109,255,.3)}
+
+/* ===== Moat pillars ===== */
+.moat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:32px}
+@media(max-width:1200px){.moat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.moat-grid{grid-template-columns:1fr}}
+.moat-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:24px;position:relative;transition:all .2s;
+}
+.moat-card:hover{transform:translateY(-4px);border-color:var(--cyan)}
+.moat-icon{font-size:28px;margin-bottom:14px;display:block}
+.moat-card h4{font-size:14px;font-weight:700;margin-bottom:10px;letter-spacing:-.01em}
+.moat-card p{font-size:12.5px;color:var(--text-dim);line-height:1.55}
+.moat-card .score{
+  position:absolute;top:18px;right:18px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);font-weight:600;
+}
+
+/* ===== Vessels ===== */
+.fleet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:32px}
+@media(max-width:900px){.fleet-grid{grid-template-columns:1fr}}
+.vessel-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:24px;position:relative;overflow:hidden;
+}
+.vessel-svg{height:90px;margin-bottom:18px;display:flex;align-items:center;justify-content:center}
+.vessel-name{font-size:16px;font-weight:700;margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+.vessel-type{font-size:11px;color:var(--cyan);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;font-weight:600}
+.vessel-spec{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-soft);font-size:13px}
+.vessel-spec:last-child{border-bottom:none}
+.vessel-spec span:first-child{color:var(--text-mute)}
+.vessel-spec span:last-child{color:var(--text);font-weight:500;font-family:'JetBrains Mono',monospace}
+
+/* ===== Map ===== */
+.map-wrap{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:28px;position:relative;overflow:hidden;
+}
+.map-svg{width:100%;height:auto;max-height:560px}
+.map-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px solid var(--border-soft)}
+.map-legend-item{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-dim)}
+.map-legend-dot{width:12px;height:12px;border-radius:50%}
+.province-tooltip{
+  position:absolute;pointer-events:none;
+  background:var(--bg-elev);border:1px solid var(--cyan);border-radius:10px;
+  padding:12px 16px;font-size:13px;min-width:180px;
+  opacity:0;transition:opacity .15s;
+  z-index:50;box-shadow:0 8px 28px rgba(0,0,0,.6);
+}
+.province-tooltip h5{color:var(--cyan);font-size:14px;font-weight:700;margin-bottom:8px}
+.province-tooltip p{color:var(--text-dim);font-size:12px;margin:2px 0}
+.province-tooltip .pt-val{color:var(--text);font-family:'JetBrains Mono',monospace}
+
+/* ===== Bull/Bear toggle ===== */
+.bullbear{
+  background:var(--card);border:1px solid var(--border);border-radius:18px;
+  padding:32px;
+}
+.bb-tabs{display:flex;gap:12px;margin-bottom:28px;border-bottom:1px solid var(--border-soft);padding-bottom:20px}
+.bb-tab{
+  padding:10px 22px;background:transparent;border:1px solid var(--border);
+  border-radius:10px;color:var(--text-dim);cursor:pointer;font-weight:600;font-size:14px;
+  transition:all .15s;
+}
+.bb-tab.active.bull{background:rgba(61,220,151,.15);color:var(--green);border-color:var(--green)}
+.bb-tab.active.bear{background:rgba(255,84,112,.15);color:var(--red);border-color:var(--red)}
+.bb-content{display:none;animation:fadeIn .3s}
+.bb-content.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.bb-points{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(max-width:800px){.bb-points{grid-template-columns:1fr}}
+.bb-point{
+  background:var(--card-2);border:1px solid var(--border);
+  border-left:3px solid var(--cyan);border-radius:10px;padding:18px;
+}
+.bb-point.bull{border-left-color:var(--green)}
+.bb-point.bear{border-left-color:var(--red)}
+.bb-point h4{font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.bb-point h4 .tag{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--text-mute);font-weight:500;letter-spacing:.05em}
+.bb-point p{font-size:13px;color:var(--text-dim);line-height:1.6}
+
+/* ===== Risk matrix ===== */
+.risk-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:24px}
+@media(max-width:800px){.risk-grid{grid-template-columns:1fr}}
+.risk-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:20px;position:relative;
+}
+.risk-card .rt{font-size:14px;font-weight:700;margin-bottom:10px}
+.risk-card .rd{font-size:13px;color:var(--text-dim);line-height:1.55}
+.risk-pill{
+  position:absolute;top:18px;right:18px;
+  padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;border-radius:20px;
+}
+.risk-pill.high{background:rgba(255,84,112,.15);color:var(--red);border:1px solid rgba(255,84,112,.3)}
+.risk-pill.med{background:rgba(245,197,66,.15);color:var(--yellow);border:1px solid rgba(245,197,66,.3)}
+.risk-pill.low{background:rgba(61,220,151,.15);color:var(--green);border:1px solid rgba(61,220,151,.3)}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;padding-left:40px;margin-top:32px}
+.timeline::before{
+  content:'';position:absolute;left:14px;top:14px;bottom:14px;width:2px;
+  background:linear-gradient(180deg,var(--cyan),var(--purple));
+}
+.tl-item{position:relative;padding-bottom:32px}
+.tl-item::before{
+  content:'';position:absolute;left:-32px;top:6px;width:14px;height:14px;
+  border-radius:50%;background:var(--bg);border:2px solid var(--cyan);
+  box-shadow:0 0 14px rgba(0,212,255,.5);
+}
+.tl-date{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--cyan);font-weight:600;margin-bottom:6px;letter-spacing:.04em}
+.tl-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.tl-desc{font-size:13.5px;color:var(--text-dim);line-height:1.55}
+
+/* ===== Tables ===== */
+.dt{width:100%;border-collapse:collapse;font-size:13px}
+.dt th{
+  text-align:left;padding:14px 16px;background:var(--bg-elev);
+  font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-mute);
+  border-bottom:1px solid var(--border);font-weight:600;
+}
+.dt td{padding:14px 16px;border-bottom:1px solid var(--border-soft);color:var(--text-dim)}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:rgba(0,212,255,.03);color:var(--text)}
+.dt td.mono{font-family:'JetBrains Mono',monospace;color:var(--text);font-weight:500}
+.dt-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+
+/* ===== TradingView wrap ===== */
+.tv-wrap{height:560px;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;padding:8px}
+
+/* ===== Footer ===== */
+footer{
+  margin-top:60px;padding:40px 32px;
+  border-top:1px solid var(--border);
+  background:var(--bg-elev);
+  color:var(--text-mute);font-size:12.5px;line-height:1.7;
+}
+footer .container{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px}
+@media(max-width:800px){footer .container{grid-template-columns:1fr;gap:28px}}
+footer h5{color:var(--text);font-size:13px;font-weight:700;margin-bottom:14px}
+footer ul{list-style:none}
+footer ul li{margin-bottom:6px}
+
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.tag{
+  display:inline-block;padding:4px 11px;font-size:11px;border-radius:20px;
+  background:var(--cyan-soft);color:var(--cyan);font-weight:600;
+  border:1px solid rgba(0,212,255,.22);
+}
+.tag.copper{background:var(--copper-soft);color:var(--copper);border-color:rgba(255,122,69,.22)}
+.tag.green{background:rgba(61,220,151,.12);color:var(--green);border-color:rgba(61,220,151,.22)}
+.tag.purple{background:rgba(155,109,255,.12);color:var(--purple);border-color:rgba(155,109,255,.22)}
+.tag.red{background:rgba(255,84,112,.12);color:var(--red);border-color:rgba(255,84,112,.22)}
+
+.callout{
+  background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,255,.04));
+  border:1px solid rgba(0,212,255,.25);border-left:3px solid var(--cyan);
+  border-radius:10px;padding:18px 22px;margin:24px 0;font-size:14px;line-height:1.7;
+}
+.callout strong{color:var(--cyan)}
+
+.kbd{
+  font-family:'JetBrains Mono',monospace;font-size:12px;
+  background:var(--bg-elev);border:1px solid var(--border);
+  padding:2px 6px;border-radius:5px;color:var(--cyan);
+}
+
+.bar-h-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;font-size:13px}
+.bar-h-label{width:160px;color:var(--text-dim);flex-shrink:0}
+.bar-h-track{flex:1;height:28px;background:var(--bg-elev);border-radius:6px;overflow:hidden;position:relative}
+.bar-h-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 10px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:#001a2e}
+.bar-h-fill.alt{color:var(--text)}
+
+.copper-sense{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center;margin-top:24px}
+@media(max-width:900px){.copper-sense{grid-template-columns:1fr}}
+
+.scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+@media(max-width:800px){.scenarios{grid-template-columns:1fr}}
+.scen{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:24px;position:relative;
+}
+.scen.upside{border-color:rgba(61,220,151,.35)}
+.scen.base{border-color:rgba(0,212,255,.35)}
+.scen.downside{border-color:rgba(255,84,112,.35)}
+.scen-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.scen.upside .scen-label{color:var(--green)}
+.scen.base .scen-label{color:var(--cyan)}
+.scen.downside .scen-label{color:var(--red)}
+.scen-px{font-size:32px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-bottom:4px}
+.scen-ret{font-size:14px;font-weight:600;margin-bottom:14px}
+.scen ul{list-style:none;font-size:12.5px;color:var(--text-dim);line-height:1.7}
+.scen ul li{padding-left:14px;position:relative;margin-bottom:4px}
+.scen ul li::before{content:'•';position:absolute;left:0;color:var(--text-mute)}
+
+.peer-table{margin-top:24px}
+
+@media(max-width:600px){
+  .container{padding:0 20px}
+  section{padding:60px 0}
+  nav.topnav{padding:14px 20px}
+  .ticker-pill{display:none}
+}
+
+.fadein{opacity:0;transform:translateY(20px);transition:all .7s cubic-bezier(.16,1,.3,1)}
+.fadein.in{opacity:1;transform:translateY(0)}
+
+</style>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="topnav">
+  <div class="brand">
+    <div class="brand-mark">东</div>
+    <div class="brand-text">
+      <span>Ningbo Orient</span>
+      <small>603606 CH · Submarine Cables</small>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="#thesis">Thesis</a>
+    <a href="#101">Cable 101</a>
+    <a href="#business">Business</a>
+    <a href="#moat">Moat</a>
+    <a href="#china">China Map</a>
+    <a href="#europe">Europe</a>
+    <a href="#financials">Financials</a>
+    <a href="#valuation">Valuation</a>
+    <a href="#bullbear">Bull/Bear</a>
+    <a href="#risks">Risks</a>
+    <a href="#chart">Live</a>
+  </div>
+  <div class="ticker-pill">
+    <span class="dot"></span>
+    <span>603606.SH · CNY 61.09</span>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+<div class="container">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-tag">First-Principles Research Dashboard</div>
+      <h1>The <span class="accent">submarine cable</span> oligopoly powering offshore wind</h1>
+      <p class="lede">Ningbo Orient is a 33%-share Chinese pure-play on the only physical link that takes electricity from offshore wind turbines back to land — the high-voltage submarine cable. One of fewer than ten companies worldwide that can build a 500kV+ subsea cable, with a moat so deep that 83% of all offshore wind insurance claims trace back to cables it builds.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#thesis">Read the thesis →</a>
+        <a class="btn btn-ghost" href="#chart">Live chart</a>
+      </div>
+      <div class="tag-row">
+        <span class="tag">Buy · UBS RMB78</span>
+        <span class="tag green">OW · MS RMB69.6</span>
+        <span class="tag purple">OW · Huatai RMB68.4</span>
+      </div>
+    </div>
+
+    <div class="hero-card">
+      <div class="hero-card-header">
+        <div>
+          <div class="hero-card-ticker">SSE · ENERGY EQUIPMENT</div>
+          <div class="hero-card-name">Ningbo Orient Wires & Cables Co Ltd</div>
+        </div>
+        <div class="hero-rating">BUY</div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-cell">
+          <div class="kpi-label">Market Cap</div>
+          <div class="kpi-value" data-counter="42.0" data-suffix="b">0</div>
+          <div class="kpi-meta">RMB · ~USD 6.1b</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">Order Backlog</div>
+          <div class="kpi-value" data-counter="18.4" data-suffix="b">0</div>
+          <div class="kpi-meta">RMB · April 2026</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">FY25 Revenue</div>
+          <div class="kpi-value" data-counter="10.84" data-suffix="b">0</div>
+          <div class="kpi-meta kpi-up">+19% YoY</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">FY25 Net Profit</div>
+          <div class="kpi-value" data-counter="1.27" data-suffix="b">0</div>
+          <div class="kpi-meta kpi-up">+26% YoY</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stat strip -->
+  <div class="stat-strip">
+    <div class="stat-cell"><div class="num" data-counter="33" data-suffix="%">0</div><div class="lbl">China submarine cable market share (top-3 control 87%)</div></div>
+    <div class="stat-cell"><div class="num" data-counter="10" data-prefix="<">0</div><div class="lbl">Global companies with 500kV HVDC submarine cable tech</div></div>
+    <div class="stat-cell"><div class="num" data-counter="83" data-suffix="%">0</div><div class="lbl">Offshore wind insurance losses caused by cable failures</div></div>
+    <div class="stat-cell"><div class="num" data-counter="6">0</div><div class="lbl">Suppliers approved by China's National Grid for HVDC framework</div></div>
+    <div class="stat-cell"><div class="num" data-counter="10.6" data-suffix=" GW">0</div><div class="lbl">15th Five-Year Plan target annual offshore wind installations (vs. 5-7 GW in 14th plan)</div></div>
+  </div>
+</div>
+</section>
+
+<!-- ===== THESIS ===== -->
+<section id="thesis">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Executive Summary</div>
+    <h2 class="section-title">The thesis in <span class="accent">five sentences</span></h2>
+    <p class="section-sub">If you skim nothing else, read this. Each bullet is a discrete reason this stock works — pull on any one and the rest still stand.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>1 · It's a structural duopoly with a moat dug by physics</h3>
+      <p class="subhead">Submarine cables fail catastrophically when wrong — 83% of offshore wind insurance claims trace back to them. Developers therefore stick to a handful of qualified suppliers with proven track records, deep-water port access, and proprietary cable-laying vessels. China's market is locked up by three players (Zhongtian 37%, Ningbo Orient 33%, Hengtong 17%) and only six suppliers are National-Grid-approved for HVDC framework contracts. New entrants need years to get qualified, plus port permits that take additional years.</p>
+    </div>
+    <div class="card">
+      <h3>2 · Order book provides multi-year revenue visibility</h3>
+      <p class="subhead">As of April 2026, the order backlog stands at RMB 18.4bn — roughly <span style="color:var(--cyan);font-weight:600">1.7x</span> trailing 12-month revenue. The book is concentrated in high-margin product: RMB 10.4bn in submarine + HV cables (50–60% of which is premium 500kV product), RMB 3.7bn in offshore engineering EPC, and RMB 4.4bn in land cable. Deliveries are scheduled across 2026 and 2027.</p>
+    </div>
+    <div class="card">
+      <h3>3 · 15th Five-Year Plan supercharges China offshore wind</h3>
+      <p class="subhead">China targets 100GW cumulative offshore wind by 2030, implying ~10GW/year of new installations vs. 5–7GW in 2022–25 — a <span style="color:var(--green);font-weight:600">+39% jump</span> in the run-rate. Submarine cables are 8–13% of total project cost. UBS projects Orient Cable's revenue to grow from RMB 10.8bn (2025) to RMB 28bn (2030) — a 21% CAGR.</p>
+    </div>
+    <div class="card">
+      <h3>4 · Europe is the next leg, validated by Inch Cape delivery</h3>
+      <p class="subhead">Chinese subsea cables trade ~10% below European peers, with no technical gap — and European suppliers are capacity-constrained. The UK Inch Cape project (RMB 1.8bn) confirmed Orient can meet European technical specs and deliver on time. The UK's AR7 auction allocated 8.4GW, France ran a 10GW tender, and the Hamburg Declaration targets 100GW in the North Sea by 2050.</p>
+    </div>
+    <div class="card">
+      <h3>5 · Margin expansion as the mix turns toward 500kV</h3>
+      <p class="subhead">Submarine cable GPM was 33.4% in 2025 (UBS estimates it scales to 31% in 2027 and 33% in upside case). Land cable GPM sits at ~8–10%. As more revenue comes from 500kV product — which carries the fattest margins in the entire wind supply chain — overall blended GPM expands from 22.1% (FY25) to 23.7% (2027E) to 26.1% (2030E).</p>
+    </div>
+    <div class="card">
+      <h3>6 · Cheap on its own growth, cheap vs. peers</h3>
+      <p class="subhead">Trades at 22.6x 2026E P/E on 47% EPS growth, and 18x 2027E P/E on 25% EPS growth — vs. Chinese wind-cable peer average of 23–27x. Stock is <span style="color:var(--yellow);font-weight:600">below its 27x historical average</span>. UBS PT of RMB 78 implies 23x 2027E P/E (in line with peers) and 28% upside; Morgan Stanley OW at RMB 69.6.</p>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:32px">
+    <strong>What kills the thesis →</strong> A sustained spike in copper prices the company can't pass through to customers; a UK or EU national-security ban on Chinese cable imports (Mingyang precedent); domestic offshore wind project delays from sea-use coordination or military airspace; a successful 500kV+ entry by a new competitor that erodes the oligopoly.
+  </div>
+</div>
+</section>
+
+<!-- ===== CABLE 101 ===== -->
+<section id="101">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">First Principles · 101</div>
+    <h2 class="section-title">What <span class="accent">actually is</span> a submarine cable?</h2>
+    <p class="section-sub">A submarine cable is the only physical link between an offshore wind turbine and the grid on land. If it fails, the entire wind farm becomes a stranded asset spinning in the ocean. That brutal asymmetry — cheap component, catastrophic failure cost — is the source of the entire industry's pricing power.</p>
+  </div>
+
+  <div class="anatomy">
+    <div>
+      <svg class="anatomy-svg" viewBox="0 0 480 380" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="ocean" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#1a2a4d"/>
+            <stop offset="100%" stop-color="#0a1426"/>
+          </radialGradient>
+          <linearGradient id="conductor" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ff7a45"/>
+            <stop offset="100%" stop-color="#ffa97a"/>
+          </linearGradient>
+        </defs>
+        <!-- Outer ocean bg -->
+        <rect x="0" y="0" width="480" height="380" fill="url(#ocean)"/>
+        <!-- Cable cross-section -->
+        <g transform="translate(240,190)">
+          <!-- Armor wires (outer) -->
+          <circle r="160" fill="#2a3550" stroke="#3a4870" stroke-width="2"/>
+          <g id="armor-wires"></g>
+          <!-- Bedding -->
+          <circle r="120" fill="#1a2235"/>
+          <!-- Lead sheath -->
+          <circle r="105" fill="#404a60"/>
+          <!-- Insulation (XLPE) -->
+          <circle r="90" fill="#1a3a5c" stroke="#00d4ff" stroke-width="1" stroke-dasharray="3,3" opacity="0.7"/>
+          <!-- 3 conductors -->
+          <g>
+            <circle cx="0" cy="-45" r="32" fill="url(#conductor)"/>
+            <circle cx="-39" cy="22" r="32" fill="url(#conductor)"/>
+            <circle cx="39" cy="22" r="32" fill="url(#conductor)"/>
+          </g>
+          <!-- optical fiber center -->
+          <circle r="14" fill="#00d4ff" opacity="0.6"/>
+          <circle r="7" fill="#fff"/>
+          <!-- Labels with leader lines -->
+          <line x1="-160" y1="-100" x2="-100" y2="-60" stroke="#9aa6bd" stroke-width="1"/>
+          <text x="-220" y="-105" fill="#9aa6bd" font-size="11" font-family="Inter">Armor Wires</text>
+          <text x="-220" y="-92" fill="#6a7691" font-size="9" font-family="Inter">(steel, mechanical protection)</text>
+
+          <line x1="-160" y1="-30" x2="-95" y2="-5" stroke="#9aa6bd" stroke-width="1"/>
+          <text x="-220" y="-30" fill="#9aa6bd" font-size="11" font-family="Inter">Bedding</text>
+
+          <line x1="160" y1="-100" x2="105" y2="-50" stroke="#9aa6bd" stroke-width="1"/>
+          <text x="170" y="-95" fill="#9aa6bd" font-size="11" font-family="Inter">Lead Sheath</text>
+          <text x="170" y="-82" fill="#6a7691" font-size="9" font-family="Inter">(water barrier)</text>
+
+          <line x1="160" y1="-20" x2="90" y2="0" stroke="#9aa6bd" stroke-width="1"/>
+          <text x="170" y="-20" fill="#00d4ff" font-size="11" font-family="Inter">XLPE Insulation</text>
+          <text x="170" y="-7" fill="#6a7691" font-size="9" font-family="Inter">(Orient's specialty)</text>
+
+          <line x1="160" y1="40" x2="50" y2="22" stroke="#9aa6bd" stroke-width="1"/>
+          <text x="170" y="40" fill="#ff7a45" font-size="11" font-family="Inter">Copper Conductor ×3</text>
+          <text x="170" y="53" fill="#6a7691" font-size="9" font-family="Inter">(carries the current)</text>
+
+          <line x1="-160" y1="60" x2="0" y2="0" stroke="#9aa6bd" stroke-width="1"/>
+          <text x="-220" y="65" fill="#9aa6bd" font-size="11" font-family="Inter">Optical Fiber</text>
+          <text x="-220" y="78" fill="#6a7691" font-size="9" font-family="Inter">(comms + monitoring)</text>
+        </g>
+      </svg>
+    </div>
+    <div class="anatomy-list">
+      <div class="anatomy-item"><div class="anatomy-num">1</div><div><h4>Copper conductor</h4><p>The heart of the cable. Three insulated copper conductors carry three-phase AC power, or one to two for HVDC. Copper is the #1 raw material exposure — 8–13% of total offshore wind project cost is the cable, mostly metal.</p></div></div>
+      <div class="anatomy-item"><div class="anatomy-num">2</div><div><h4>XLPE insulation</h4><p>Cross-linked polyethylene, the industry-standard insulator. Only ~10 companies globally can make XLPE that holds at 500kV submarine. Orient produced the <em>world's first 500kV XLPE submarine cable with a soft joint</em> — a key technical milestone.</p></div></div>
+      <div class="anatomy-item"><div class="anatomy-num">3</div><div><h4>Lead sheath</h4><p>Watertight metallic barrier. Salt water will destroy any cable it touches — the sheath is what keeps the cable alive for the 25-year design life of the wind farm.</p></div></div>
+      <div class="anatomy-item"><div class="anatomy-num">4</div><div><h4>Steel armor</h4><p>Wraps the whole cable in steel wire to survive being dragged across the seabed, anchor strikes, fishing trawlers, and ocean currents. Adds weight — which is why you need specialized cable-laying vessels to install them.</p></div></div>
+      <div class="anatomy-item"><div class="anatomy-num">5</div><div><h4>Optical fiber</h4><p>Embedded fiber for SCADA monitoring and grid communication. A "wet mate" connector is required to splice cables in the ocean — Orient developed China's first 3,000m ultra-deepwater umbilical cable connector.</p></div></div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Why this matters →</strong> Cables look mundane — they're not. A single 500kV HVDC submarine cable can be 200km long, weigh 100 tonnes per kilometre, and cost €5–10 million per kilometre. A single failure can take a wind farm offline for <em>months</em> because repair requires the same specialized ships used to install it. There aren't many of those ships in the world. That scarcity is the moat.
+  </div>
+</div>
+</section>
+
+<!-- ===== VOLTAGE LADDER ===== -->
+<section id="voltage" style="padding-top:40px">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Voltage Technology Ladder</div>
+    <h2 class="section-title">The <span class="accent">kV race</span>: higher voltage = bigger moat</h2>
+    <p class="section-sub">As wind farms move farther offshore and deeper, transmission losses become the binding constraint. Higher voltage = lower losses = longer feasible distance to shore. Each step up the voltage ladder is a multi-year R&D moat. Orient sits at the top of the AC ladder (500kV) and on the second-highest rung of the DC ladder (±525kV), with ±800kV in development.</p>
+  </div>
+
+  <div class="voltage-ladder">
+    <div class="voltage-step">
+      <div class="kv">35 / 66 kV</div>
+      <div class="v-type">Inter-Array AC</div>
+      <div class="v-desc">Cables that connect individual turbines within a wind farm. Commodity — many manufacturers can make them. Lowest margin.</div>
+      <div class="v-status" style="background:rgba(154,166,189,.15);color:var(--text-dim);border:1px solid var(--border)">Commodity</div>
+    </div>
+    <div class="voltage-step">
+      <div class="kv">220 kV</div>
+      <div class="v-type">Export AC</div>
+      <div class="v-desc">Backbone cable that exports power from the offshore substation to the onshore grid. Standard for small/medium wind farms.</div>
+      <div class="v-status" style="background:rgba(154,166,189,.15);color:var(--text-dim);border:1px solid var(--border)">Mature</div>
+    </div>
+    <div class="voltage-step current">
+      <div class="kv">500 kV</div>
+      <div class="v-type">Ultra-HV AC</div>
+      <div class="v-desc">Orient's flagship. World's first 500kV XLPE submarine cable with proprietary soft joint. Used for the largest export-cable applications.</div>
+      <div class="v-status">Orient Leads</div>
+    </div>
+    <div class="voltage-step current">
+      <div class="kv">±525 kV</div>
+      <div class="v-type">HVDC</div>
+      <div class="v-desc">Direct-current submarine. Required for very long distances (>100km) and inter-country interconnectors. ~10 global producers.</div>
+      <div class="v-status">Orient Producing</div>
+    </div>
+    <div class="voltage-step future">
+      <div class="kv">±800 kV</div>
+      <div class="v-type">Next-Gen HVDC</div>
+      <div class="v-desc">In R&D. Would extend the feasible distance further, enabling deep-sea floating wind and trans-oceanic interconnectors.</div>
+      <div class="v-status">In R&D</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>HVAC vs HVDC, briefly →</strong> Alternating current (AC) is the easier, cheaper option but loses ~3–4% of power per 100km of submarine cable, so it becomes uneconomic past ~100–150km. Direct current (HVDC) is harder to manufacture (you need fancy XLPE and converter stations) but loses less than 1% per 1,000km — so it's the only option for deep-sea wind and long interconnectors like the Morocco-UK XLinks project. Orient owns 8.5% of XLCC (a UK HVDC cable producer) and 2.4% of XLinks itself — that's a strategic bet on HVDC adoption in Europe.
+  </div>
+</div>
+</section>
+
+<!-- ===== BUSINESS SEGMENTS ===== -->
+<section id="business">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Business Model</div>
+    <h2 class="section-title">Three segments, <span class="accent">one cash-cow product</span></h2>
+    <p class="section-sub">Orient reports three operating segments. They sound balanced — they aren't. The submarine + HV cable business carries 33% gross margin and historically generates ~80% of profit. Land cable is essentially a commoditised mass-market product at ~9% GPM. Marine engineering is the EPC services arm that makes the cable business defensible.</p>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:48px">
+    <div class="card" style="border-top:3px solid var(--cyan)">
+      <h3>Submarine + HV Cables</h3>
+      <div class="subhead">The crown jewel. 500kV AC, ±525kV DC, dynamic deep-sea cables, optical-electrical composites, umbilicals.</div>
+      <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text-mute)">FY25 Revenue</span><span style="font-family:JetBrains Mono,monospace;font-weight:600">RMB 5.36 bn</span></div>
+      <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text-mute)">YoY Growth</span><span style="color:var(--green);font-family:JetBrains Mono,monospace;font-weight:600">+65.6%</span></div>
+      <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text-mute)">Gross Margin</span><span style="color:var(--cyan);font-family:JetBrains Mono,monospace;font-weight:600">33.4%</span></div>
+      <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text-mute)">Order Backlog</span><span style="font-family:JetBrains Mono,monospace;font-weight:600">RMB 10.4 bn</span></div>
+      <div class="tag-row"><span class="tag">UHV AC</span><span class="tag">HVDC</span><span class="tag">Dynamic</span><span class="tag">Umbilical</span></div>
+    </div>
+
+    <div class="card" style="border-top:3px solid var(--copper)">
+      <h3>Land Cables (MV/LV)</h3>
+      <div class="subhead">Medium- and low-voltage power and data cables. Standardised mass-production for utilities, telecom, rail, real estate.</div>
+      <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text-mute)">FY25 Revenue</span><span style="font-family:JetBrains Mono,monospace;font-weight:600">RMB 4.73 bn</span></div>
+      <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text-mute)">YoY Growth</span><span style="color:var(--green);font-family:JetBrains Mono,monospace;font-weight:600">+7.3%</span></div>
+      <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text-mute)">Gross Margin</span><span style="color:var(--copper);font-family:JetBrains Mono,monospace;font-weight:600">8.6%</span></div>
+      <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text-mute)">Order Backlog</span><span style="font-family:JetBrains Mono,monospace;font-weight:600">RMB 4.4 bn</span></div>
+      <div class="tag-row"><span class="tag copper">Commodity</span><span class="tag copper">Standardized</span></div>
+    </div>
+
+    <div class="card" style="border-top:3px solid var(--purple)">
+      <h3>Marine Equipment & EPC</h3>
+      <div class="subhead">Offshore engineering services — vessel-based cable laying, route planning, jointing, testing, lifecycle O&M. The differentiator vs. pure cable peers.</div>
+      <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text-mute)">FY25 Revenue</span><span style="font-family:JetBrains Mono,monospace;font-weight:600">RMB 0.74 bn</span></div>
+      <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text-mute)">YoY Growth</span><span style="color:var(--red);font-family:JetBrains Mono,monospace;font-weight:600">-48.3%</span></div>
+      <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text-mute)">Gross Margin</span><span style="color:var(--purple);font-family:JetBrains Mono,monospace;font-weight:600">26.0%</span></div>
+      <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid var(--border-soft);font-size:13px"><span style="color:var(--text-mute)">Order Backlog</span><span style="font-family:JetBrains Mono,monospace;font-weight:600">RMB 3.7 bn</span></div>
+      <div class="tag-row"><span class="tag purple">EPC</span><span class="tag purple">Vessels</span><span class="tag purple">O&M</span></div>
+    </div>
+  </div>
+
+  <h3 style="font-size:20px;margin-bottom:18px">FY25 revenue & gross profit by segment</h3>
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">Revenue mix (RMB bn)</h3>
+      <div class="chart-wrap"><canvas id="segRevenue"></canvas></div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">Gross profit mix (RMB bn)</h3>
+      <div class="chart-wrap"><canvas id="segGP"></canvas></div>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:32px">
+    <strong>The economic reality →</strong> Marine engineering may only be 7% of revenue but it's the reason customers pick Orient over a pure cable manufacturer. As offshore wind moves to deeper water and farther offshore, the bottleneck shifts from <em>making</em> the cable to <em>installing</em> it. Orient's fleet of two construction vessels and an 18,000-tonne transport platform means it sells a turnkey package, not just a product. That's a structural premium.
+  </div>
+</div>
+</section>
+
+<!-- ===== MOAT ===== -->
+<section id="moat">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Competitive Moat</div>
+    <h2 class="section-title">Five pillars of <span class="accent">structural defensibility</span></h2>
+    <p class="section-sub">The submarine cable business is one of the most concentrated industrial niches in global energy. Orient's quality scorecard rates 13/16 (81%) with infrastructure moat scoring 3.5/4. Each pillar below is independent — together they make the franchise close to unassailable in the near-term.</p>
+  </div>
+
+  <div class="moat-grid">
+    <div class="moat-card">
+      <div class="score">3.5/4</div>
+      <span class="moat-icon">🔬</span>
+      <h4>UHV/HVDC technology</h4>
+      <p>Fewer than 10 global firms can produce 500kV AC and ±525kV DC submarine cables. The XLPE manufacturing process, soft-joint technology, and high-voltage testing capability take 5–10 years to develop, and even then customers won't qualify you without a track record.</p>
+    </div>
+    <div class="moat-card">
+      <div class="score">3.5/4</div>
+      <span class="moat-icon">🚢</span>
+      <h4>Proprietary vessel fleet</h4>
+      <p>Two specialised cable-laying ships (Dongfang Haigong 01, 02) and an 18,000-ton transport platform (Dongfang Haigong 07) capable of shipping ultra-long cables directly to Europe. Global shortage of these vessels = sellers' market for combined "manufacture + lay" capability.</p>
+    </div>
+    <div class="moat-card">
+      <div class="score">3/4</div>
+      <span class="moat-icon">⚓</span>
+      <h4>Port access</h4>
+      <p>Submarine cable spools weigh hundreds of tonnes and must be loaded directly onto installation vessels. Deep-water piers are rare in China — securing permission to build new ones takes years. Existing capacity sits in Ningbo, Yangjiang, Yantai, Beihai. New entrants are physically locked out.</p>
+    </div>
+    <div class="moat-card">
+      <div class="score">3/4</div>
+      <span class="moat-icon">🏦</span>
+      <h4>Bankability & credit</h4>
+      <p>Because 83% of offshore wind insurance claims trace to cables, developers demand bank and insurance credit endorsements from suppliers. The National Grid maintains a closed roster of just 6 approved HVDC framework suppliers. Insurers won't underwrite projects using untested vendors.</p>
+    </div>
+    <div class="moat-card">
+      <div class="score">3/4</div>
+      <span class="moat-icon">🔧</span>
+      <h4>Integrated EPC</h4>
+      <p>Developers no longer buy a "cable" — they buy a turnkey delivery package: route planning, manufacturing, installation, testing, lifecycle repair. Orient's integrated capability shifts pricing power upstream and creates switching costs once a project is under way.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:20px;margin-top:64px;margin-bottom:20px">Chinese submarine cable market share</h3>
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">Domestic concentration (2022–1H23 bidding)</h3>
+      <div class="chart-wrap short"><canvas id="marketShare"></canvas></div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">Why concentration is sticky — barriers to entry score</h3>
+      <div style="padding-top:8px">
+        <div class="bar-h-row"><div class="bar-h-label">Tech/UHV know-how</div><div class="bar-h-track"><div class="bar-h-fill" style="width:96%;background:var(--gradient)">Extreme</div></div></div>
+        <div class="bar-h-row"><div class="bar-h-label">Deep-water port</div><div class="bar-h-track"><div class="bar-h-fill" style="width:90%;background:var(--gradient)">Very High</div></div></div>
+        <div class="bar-h-row"><div class="bar-h-label">Track record</div><div class="bar-h-track"><div class="bar-h-fill" style="width:88%;background:var(--gradient)">Very High</div></div></div>
+        <div class="bar-h-row"><div class="bar-h-label">Grid approval</div><div class="bar-h-track"><div class="bar-h-fill" style="width:82%;background:var(--gradient)">High</div></div></div>
+        <div class="bar-h-row"><div class="bar-h-label">Vessel fleet</div><div class="bar-h-track"><div class="bar-h-fill" style="width:78%;background:var(--gradient)">High</div></div></div>
+        <div class="bar-h-row"><div class="bar-h-label">Capex</div><div class="bar-h-track"><div class="bar-h-fill" style="width:65%;background:var(--gradient)">Moderate</div></div></div>
+        <div class="bar-h-row"><div class="bar-h-label">Working capital</div><div class="bar-h-track"><div class="bar-h-fill alt" style="width:50%;background:var(--copper)">Moderate</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== VESSEL FLEET ===== -->
+<section id="vessels" style="padding-top:40px">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Proprietary Marine Assets</div>
+    <h2 class="section-title">The <span class="accent">Dongfang Haigong fleet</span></h2>
+    <p class="section-sub">Most cable manufacturers don't own ships. Orient does. This is the operational difference between a component vendor and a turnkey infrastructure provider — and it's why the company can ship cables straight to UK projects without intermediaries.</p>
+  </div>
+
+  <div class="fleet-grid">
+    <div class="vessel-card">
+      <div class="vessel-svg">
+        <svg viewBox="0 0 220 80" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 20 50 L 200 50 L 190 65 L 30 65 Z" fill="#1f2940" stroke="#00d4ff" stroke-width="1.5"/>
+          <rect x="70" y="32" width="40" height="18" fill="#00d4ff" opacity="0.3" stroke="#00d4ff"/>
+          <rect x="120" y="20" width="50" height="30" fill="#0e1422" stroke="#00d4ff" stroke-width="1.2"/>
+          <circle cx="145" cy="35" r="8" fill="none" stroke="#00d4ff" stroke-width="1.2"/>
+          <line x1="0" y1="68" x2="220" y2="68" stroke="#00d4ff" stroke-width="0.5" stroke-dasharray="2,2"/>
+          <path d="M 0 70 Q 50 73, 100 70 T 220 70" fill="none" stroke="#00d4ff" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="vessel-name">Dongfang Haigong 01</div>
+      <div class="vessel-type">Cable-Laying Vessel</div>
+      <div class="vessel-spec"><span>Function</span><span>Submarine cable installation</span></div>
+      <div class="vessel-spec"><span>Domestic deployments</span><span>Yangjiang, Fanshi</span></div>
+      <div class="vessel-spec"><span>Sister ship</span><span>DHG-02</span></div>
+    </div>
+
+    <div class="vessel-card">
+      <div class="vessel-svg">
+        <svg viewBox="0 0 220 80" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 18 50 L 202 50 L 192 65 L 28 65 Z" fill="#1f2940" stroke="#00d4ff" stroke-width="1.5"/>
+          <rect x="65" y="32" width="45" height="18" fill="#00d4ff" opacity="0.3" stroke="#00d4ff"/>
+          <rect x="115" y="22" width="55" height="28" fill="#0e1422" stroke="#00d4ff" stroke-width="1.2"/>
+          <line x1="145" y1="12" x2="145" y2="22" stroke="#00d4ff" stroke-width="1.5"/>
+          <line x1="0" y1="68" x2="220" y2="68" stroke="#00d4ff" stroke-width="0.5" stroke-dasharray="2,2"/>
+        </svg>
+      </div>
+      <div class="vessel-name">Dongfang Haigong 02</div>
+      <div class="vessel-type">Cable-Laying Vessel</div>
+      <div class="vessel-spec"><span>Function</span><span>Submarine cable installation</span></div>
+      <div class="vessel-spec"><span>Deployments</span><span>Domestic offshore wind</span></div>
+      <div class="vessel-spec"><span>Capability</span><span>Up to 500kV cables</span></div>
+    </div>
+
+    <div class="vessel-card">
+      <div class="vessel-svg">
+        <svg viewBox="0 0 220 80" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 10 48 L 210 48 L 200 68 L 20 68 Z" fill="#1f2940" stroke="#ff7a45" stroke-width="1.5"/>
+          <rect x="50" y="28" width="120" height="22" fill="#ff7a45" opacity="0.35" stroke="#ff7a45"/>
+          <text x="110" y="44" fill="#ff7a45" font-size="9" font-family="JetBrains Mono" text-anchor="middle">18,000T</text>
+          <rect x="175" y="20" width="25" height="28" fill="#0e1422" stroke="#ff7a45" stroke-width="1.2"/>
+        </svg>
+      </div>
+      <div class="vessel-name">Dongfang Haigong 07</div>
+      <div class="vessel-type">18,000T Transport Platform</div>
+      <div class="vessel-spec"><span>Function</span><span>Ultra-long cable export</span></div>
+      <div class="vessel-spec"><span>Capacity</span><span>18,000 tonnes</span></div>
+      <div class="vessel-spec"><span>Key route</span><span>Ningbo → UK / Europe</span></div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Strategic significance →</strong> The 18,000-tonne DHG-07 is specifically engineered to transport completed ultra-long submarine cables from Chinese factories directly to European installation sites. This bypasses the need to ship a partial cable, splice it at the destination, and risk a failure point — a key reason Orient won Inch Cape over local European bidders.
+  </div>
+</div>
+</section>
+
+<!-- ===== CHINA MAP ===== -->
+<section id="china">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Domestic Footprint</div>
+    <h2 class="section-title">China offshore wind — <span class="accent">province by province</span></h2>
+    <p class="section-sub">China's offshore wind is geographically concentrated along five coastal provinces. Orient's manufacturing footprint spans the country: HQ in Zhejiang (Ningbo), capacity ramp in Guangdong (Yangjiang), greenfield in Shandong (Yantai), new investment in Guangxi (Beihai). Each dot ties to a specific revenue driver. Hover to see detail.</p>
+  </div>
+
+  <div class="map-wrap">
+    <svg class="map-svg" viewBox="0 0 800 580" xmlns="http://www.w3.org/2000/svg" id="chinaMap">
+      <!-- Stylized China coastline. East coast emphasis -->
+      <defs>
+        <radialGradient id="dotGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Land mass (simplified) -->
+      <path d="M 80 120 L 160 90 L 230 95 L 290 80 L 340 100 L 400 90 L 470 115 L 510 130 L 540 165 L 560 200 L 580 235 L 600 275 L 605 310 L 595 345 L 580 380 L 570 415 L 555 450 L 530 480 L 500 500 L 460 510 L 420 515 L 380 510 L 340 500 L 300 485 L 270 465 L 250 440 L 230 410 L 210 380 L 190 350 L 170 320 L 155 285 L 140 250 L 125 215 L 110 180 L 95 150 Z"
+        fill="#0e1a30" stroke="#1f2940" stroke-width="1"/>
+
+      <!-- Sea -->
+      <rect x="595" y="100" width="200" height="450" fill="url(#dotGlow)" opacity="0.1"/>
+
+      <!-- Province dots -->
+      <!-- Liaoning -->
+      <g class="province-dot" data-name="Liaoning" data-cap="Vessel + offshore engineering region" data-pipeline="Northern offshore wind cluster">
+        <circle cx="510" cy="155" r="14" fill="rgba(0,212,255,0.2)" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="510" cy="155" r="5" fill="#00d4ff"/>
+        <text x="530" y="160" fill="#e8eef7" font-size="11" font-family="Inter">Liaoning</text>
+      </g>
+
+      <!-- Shandong (Yantai) -->
+      <g class="province-dot" data-name="Shandong (Yantai)" data-cap="New high-end submarine cable base · 1-2 years to come online" data-pipeline="RMB 3–4bn projected output">
+        <circle cx="500" cy="225" r="18" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="2"/>
+        <circle cx="500" cy="225" r="6" fill="#00d4ff"/>
+        <text x="520" y="230" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="600">Shandong (Yantai)</text>
+      </g>
+
+      <!-- Jiangsu -->
+      <g class="province-dot" data-name="Jiangsu" data-cap="Major demand center · Fanshi I/II projects" data-pipeline="CGN Fanshi RMB 1.7bn order">
+        <circle cx="500" cy="290" r="16" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="500" cy="290" r="5" fill="#00d4ff"/>
+        <text x="520" y="295" fill="#e8eef7" font-size="11" font-family="Inter">Jiangsu</text>
+      </g>
+
+      <!-- Zhejiang (Ningbo HQ) -->
+      <g class="province-dot" data-name="Zhejiang (Ningbo HQ)" data-cap="Headquarters + main factory · ~RMB 10bn annual capacity" data-pipeline="Core manufacturing hub">
+        <circle cx="510" cy="345" r="22" fill="rgba(0,212,255,0.3)" stroke="#00d4ff" stroke-width="2.5"/>
+        <circle cx="510" cy="345" r="8" fill="#00d4ff"/>
+        <text x="535" y="350" fill="#00d4ff" font-size="12" font-family="Inter" font-weight="700">Ningbo HQ ★</text>
+      </g>
+
+      <!-- Fujian -->
+      <g class="province-dot" data-name="Fujian" data-cap="Active offshore wind buildout coastline" data-pipeline="Multiple TGC / utility projects">
+        <circle cx="495" cy="400" r="14" fill="rgba(0,212,255,0.2)" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="495" cy="400" r="5" fill="#00d4ff"/>
+        <text x="515" y="405" fill="#e8eef7" font-size="11" font-family="Inter">Fujian</text>
+      </g>
+
+      <!-- Guangdong (Yangjiang) -->
+      <g class="province-dot" data-name="Guangdong (Yangjiang)" data-cap="New factory · 85% utilization by Jun 2025" data-pipeline="Yangjiang Qingzhou / Yangxi Shaba wind farms">
+        <circle cx="445" cy="465" r="18" fill="rgba(0,212,255,0.25)" stroke="#00d4ff" stroke-width="2"/>
+        <circle cx="445" cy="465" r="6" fill="#00d4ff"/>
+        <text x="465" y="470" fill="#e8eef7" font-size="11" font-family="Inter" font-weight="600">Guangdong (Yangjiang)</text>
+      </g>
+
+      <!-- Guangxi (Beihai) -->
+      <g class="province-dot" data-name="Guangxi (Beihai)" data-cap="New investment agreement signed · Southern hub" data-pipeline="Future South China Sea expansion">
+        <circle cx="395" cy="485" r="14" fill="rgba(0,212,255,0.2)" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="395" cy="485" r="5" fill="#00d4ff"/>
+        <text x="305" y="490" fill="#e8eef7" font-size="11" font-family="Inter">Guangxi (Beihai)</text>
+      </g>
+
+      <!-- Hainan -->
+      <g class="province-dot" data-name="Hainan / South China Sea" data-cap="CNOOC deep-sea oil & gas projects" data-pipeline="Kaiping 11-4, Lingshui umbilicals">
+        <circle cx="420" cy="540" r="12" fill="rgba(255,122,69,0.2)" stroke="#ff7a45" stroke-width="1.5"/>
+        <circle cx="420" cy="540" r="4" fill="#ff7a45"/>
+        <text x="438" y="545" fill="#ff7a45" font-size="11" font-family="Inter">Hainan / CNOOC</text>
+      </g>
+
+      <!-- Title -->
+      <text x="100" y="540" fill="#6a7691" font-size="10" font-family="Inter">★ HQ · ◯ Manufacturing · ○ Offshore wind demand · 🛢 Oil & gas</text>
+    </svg>
+
+    <div class="map-legend">
+      <div class="map-legend-item"><div class="map-legend-dot" style="background:#00d4ff"></div>Offshore wind / submarine cable</div>
+      <div class="map-legend-item"><div class="map-legend-dot" style="background:#ff7a45"></div>Oil & gas (CNOOC umbilicals)</div>
+      <div class="map-legend-item" style="margin-left:auto;color:var(--text-mute);font-size:11px">Hover any province for detail</div>
+    </div>
+    <div class="province-tooltip" id="provinceTooltip"></div>
+  </div>
+
+  <div class="grid-3" style="margin-top:32px">
+    <div class="card">
+      <h3 style="font-size:15px">Ningbo (Zhejiang) — HQ & main factory</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:8px">Original manufacturing hub. ~RMB 10bn annual cable production capacity. Deep-water port access used to load submarine cables onto installation vessels.</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px">Yangjiang (Guangdong) — South ramp-up</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:8px">Phase 1 reached 85% utilization by June 2025. Services Guangdong's offshore wind buildout including Yangjiang Qingzhou and Yangxi Shaba projects with China Three Gorges.</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px">Yantai (Shandong) — Greenfield</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:8px">High-end submarine cable base via wholly-owned Bohai Orient subsidiary. Construction started 2025; 1–2 years to come online. Targets northern China demand.</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px">Beihai (Guangxi) — New investment</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:8px">Investment agreement signed with local authorities. Long-term play on South China Sea / ASEAN cross-border interconnection demand.</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px">Jiangyang base — Specialised UHV</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:8px">Initial investment 2023. Designed annual production: 600km — including 200km UHV flexible DC submarine, 250km AC submarine, 150km deep-sea dynamic cables.</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px">European R&D Center — In planning</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:8px">Initiated 2025. Focus on next-gen dynamic cables for floating offshore wind — Orient's bet on the post-2030 deep-sea opportunity.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== EUROPE PIPELINE ===== -->
+<section id="europe">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">International Expansion</div>
+    <h2 class="section-title">The <span class="accent">European pipeline</span></h2>
+    <p class="section-sub">Overseas revenue is targeted to grow from 11.6% of total in 2025 to 15–20% by 2026–30 — UBS calls this the biggest single delta in the bull case. The wedge: Chinese cables price ~10% below European peers with no technical gap, and Europe has run out of domestic capacity.</p>
+  </div>
+
+  <div class="map-wrap">
+    <svg viewBox="0 0 800 460" class="map-svg" xmlns="http://www.w3.org/2000/svg">
+      <!-- Stylized Europe / North Atlantic -->
+      <defs>
+        <linearGradient id="oceanG" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0a1426"/>
+          <stop offset="100%" stop-color="#0e1a30"/>
+        </linearGradient>
+      </defs>
+      <rect width="800" height="460" fill="url(#oceanG)"/>
+
+      <!-- Land masses (very stylised) -->
+      <!-- UK -->
+      <path d="M 340 110 L 360 95 L 385 100 L 395 130 L 388 160 L 370 180 L 350 175 L 335 155 L 332 130 Z" fill="#1a2235" stroke="#1f2940"/>
+      <!-- Ireland -->
+      <path d="M 290 130 L 310 125 L 320 145 L 315 165 L 295 165 L 285 145 Z" fill="#1a2235" stroke="#1f2940"/>
+      <!-- France -->
+      <path d="M 380 200 L 430 195 L 460 215 L 470 245 L 460 270 L 430 280 L 400 275 L 385 260 L 380 230 Z" fill="#1a2235" stroke="#1f2940"/>
+      <!-- Spain -->
+      <path d="M 340 280 L 400 285 L 420 320 L 410 350 L 360 358 L 335 340 Z" fill="#1a2235" stroke="#1f2940"/>
+      <!-- Germany / Netherlands -->
+      <path d="M 450 165 L 510 155 L 540 175 L 545 210 L 520 225 L 475 215 L 460 195 Z" fill="#1a2235" stroke="#1f2940"/>
+      <!-- Scandinavia -->
+      <path d="M 480 50 L 540 40 L 580 60 L 590 110 L 555 140 L 510 130 L 490 100 Z" fill="#1a2235" stroke="#1f2940"/>
+      <!-- Morocco -->
+      <path d="M 320 380 L 380 388 L 405 410 L 395 430 L 350 432 L 320 415 Z" fill="#1a2235" stroke="#1f2940"/>
+
+      <!-- Projects -->
+      <!-- Inch Cape (Scotland east coast) -->
+      <g>
+        <circle cx="375" cy="105" r="10" fill="#3ddc97" opacity="0.3"/>
+        <circle cx="375" cy="105" r="5" fill="#3ddc97"/>
+        <text x="395" y="100" fill="#3ddc97" font-size="11" font-family="Inter" font-weight="600">Inch Cape</text>
+        <text x="395" y="113" fill="#9aa6bd" font-size="9" font-family="Inter">UK · RMB 1.8bn · Grid 2027</text>
+      </g>
+
+      <!-- SSEN Skye-Harris -->
+      <g>
+        <circle cx="345" cy="80" r="8" fill="#00d4ff" opacity="0.3"/>
+        <circle cx="345" cy="80" r="4" fill="#00d4ff"/>
+        <text x="200" y="80" fill="#00d4ff" font-size="10" font-family="Inter">SSEN Skye-Harris</text>
+      </g>
+
+      <!-- XLCC project (Scotland) -->
+      <g>
+        <circle cx="358" cy="145" r="9" fill="#9b6dff" opacity="0.3"/>
+        <circle cx="358" cy="145" r="4" fill="#9b6dff"/>
+        <text x="370" y="148" fill="#9b6dff" font-size="10" font-family="Inter">XLCC (8.5% stake)</text>
+      </g>
+
+      <!-- France 10GW tender -->
+      <g>
+        <circle cx="415" cy="230" r="9" fill="#00d4ff" opacity="0.3"/>
+        <circle cx="415" cy="230" r="4" fill="#00d4ff"/>
+        <text x="430" y="232" fill="#00d4ff" font-size="10" font-family="Inter">France 10GW tender</text>
+      </g>
+
+      <!-- Germany / Hamburg -->
+      <g>
+        <circle cx="495" cy="180" r="8" fill="#00d4ff" opacity="0.3"/>
+        <circle cx="495" cy="180" r="4" fill="#00d4ff"/>
+        <text x="510" y="182" fill="#00d4ff" font-size="10" font-family="Inter">Hamburg Declaration 100GW</text>
+      </g>
+
+      <!-- Netherlands -->
+      <g>
+        <circle cx="470" cy="190" r="7" fill="#00d4ff" opacity="0.3"/>
+        <circle cx="470" cy="190" r="3" fill="#00d4ff"/>
+      </g>
+
+      <!-- Morocco-UK XLinks -->
+      <g>
+        <circle cx="345" cy="405" r="9" fill="#f5c542" opacity="0.3"/>
+        <circle cx="345" cy="405" r="4" fill="#f5c542"/>
+        <text x="365" y="410" fill="#f5c542" font-size="10" font-family="Inter" font-weight="600">XLinks Morocco-UK</text>
+        <text x="365" y="423" fill="#9aa6bd" font-size="9" font-family="Inter">2.4% stake · 4,000km HVDC</text>
+        <!-- Line from Morocco to UK -->
+        <path d="M 345 405 Q 320 270, 370 110" fill="none" stroke="#f5c542" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+      </g>
+
+      <!-- Ningbo to UK shipping route -->
+      <g>
+        <text x="20" y="40" fill="#9aa6bd" font-size="10" font-family="Inter">DHG-07 shipping route</text>
+        <path d="M 30 50 Q 200 25, 370 95" fill="none" stroke="#00d4ff" stroke-width="1" stroke-dasharray="3,3" opacity="0.4"/>
+        <text x="20" y="60" fill="#6a7691" font-size="9" font-family="Inter">Ningbo → Suez → UK</text>
+      </g>
+
+      <!-- Title -->
+      <text x="20" y="440" fill="#6a7691" font-size="10" font-family="Inter">● Delivered  ● Active pipeline  ● Strategic stake  ●  Policy/tender</text>
+    </svg>
+  </div>
+
+  <div class="grid-3" style="margin-top:32px">
+    <div class="card" style="border-left:3px solid var(--green)">
+      <h3 style="font-size:15px">✓ Inch Cape (UK)</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:8px">RMB 1.8bn order from SSEN. RMB 910mn delivered in 2025. Grid connection scheduled 2027. <strong style="color:var(--green)">First major European delivery — validates technical capability.</strong></p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--purple)">
+      <h3 style="font-size:15px">XLCC (Scotland, 8.5% stake)</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:8px">UK-based high-voltage DC cable producer. Equity stake gives Orient an entry into the Scottish HVDC market and a foothold against European incumbents.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--yellow)">
+      <h3 style="font-size:15px">XLinks (Morocco-UK, 2.4%)</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:8px">Massive 4,000km HVDC interconnector to ship Moroccan solar to the UK. Orient's equity stake positions it as preferred cable supplier if the project clears final approvals.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--cyan)">
+      <h3 style="font-size:15px">UK AR7 Auction</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:8px">Allocated 8.4GW of offshore wind capacity. Bid caps raised 11% to GBP81/MWh. Contract terms extended to 20 years (from 15) — restores project IRRs.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--cyan)">
+      <h3 style="font-size:15px">France 10GW Tender</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:8px">Record-size offshore wind tender using 20-year CfD subsidy. Provides stable cash flow guarantees that underpin long-term cable supply contracts.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--cyan)">
+      <h3 style="font-size:15px">Hamburg Declaration</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:8px">EU joint commitment: 100GW installed offshore wind capacity in the North Sea by 2050. Multi-decade demand visibility for HVDC interconnector cable.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Why Chinese cable wins in Europe →</strong> European suppliers (Prysmian, Nexans, NKT, Hellenic) are sold out through 2027–28. Their order books are full. New capacity takes 3–5 years to add. Meanwhile EU governments are aggressively expanding offshore wind tenders. Chinese suppliers have spare capacity, are 10% cheaper, and have now demonstrated they can deliver to spec (Inch Cape). The question isn't <em>whether</em> Chinese cable will win share, but how much before geopolitical guardrails (Mingyang precedent) kick in.
+  </div>
+</div>
+</section>
+
+<!-- ===== ASEAN BR ===== -->
+<section id="asean" style="padding-top:40px">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Belt & Road / ASEAN</div>
+    <h2 class="section-title">The <span class="accent">second leg</span> of overseas growth</h2>
+    <p class="section-sub">Beyond Europe, cross-border interconnection projects in Southeast Asia and the Middle East are the natural extension of the Belt & Road. RMB 1.9bn of Orient's order book is already tied to island-interconnection projects in this region.</p>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>LTMS-PIP (Phase 2)</h3>
+      <p class="subhead">Laos-Thailand-Malaysia-Singapore Power Integration Project. Phase 2 doubled transmission capacity to 200MW. A live example of multi-country cross-border interconnection demand.</p>
+      <div class="tag-row"><span class="tag green">Active</span><span class="tag">200MW</span></div>
+    </div>
+    <div class="card">
+      <h3>VMS Project</h3>
+      <p class="subhead">Vietnam-Malaysia-Singapore corridor. Submarine cable backbone for ASEAN grid integration. Long-tail demand for HV submarine cable spanning the South China Sea.</p>
+      <div class="tag-row"><span class="tag">Pipeline</span></div>
+    </div>
+    <div class="card">
+      <h3>Middle East</h3>
+      <p class="subhead">Targeted for high-value contracts. Oil-rich Gulf states are diversifying into renewables. Saudi NEOM offshore wind and UAE solar islands both require subsea cabling.</p>
+      <div class="tag-row"><span class="tag purple">Long-tail</span></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== FINANCIALS ===== -->
+<section id="financials">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Financials & Forecasts</div>
+    <h2 class="section-title">From <span class="accent">RMB 10.8bn to RMB 28bn</span> in five years</h2>
+    <p class="section-sub">UBS models a 21% revenue CAGR through 2030 with EBIT margin expanding from 14.7% (2025) to 18.7% (2030). The driver isn't unit growth alone — it's the mix shift to high-margin 500kV product. Numbers below mirror UBS's published model.</p>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:32px">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">Revenue (RMB mn) — actual & UBS forecast</h3>
+      <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">EBIT margin (%) — operating leverage at work</h3>
+      <div class="chart-wrap"><canvas id="marginChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:32px">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">EPS trajectory (RMB, diluted)</h3>
+      <div class="chart-wrap"><canvas id="epsChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">ROIC vs ROE — capital efficiency</h3>
+      <div class="chart-wrap"><canvas id="roicChart"></canvas></div>
+    </div>
+  </div>
+
+  <h3 style="font-size:20px;margin:32px 0 18px">Quarterly journey — 2025 was a delivery-timing story, 2026 is the recovery</h3>
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">Quarterly net profit (RMB mn)</h3>
+      <div class="chart-wrap"><canvas id="quarterlyChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">Submarine cable revenue (RMB mn)</h3>
+      <div class="chart-wrap"><canvas id="submarineQChart"></canvas></div>
+    </div>
+  </div>
+
+  <h3 style="font-size:20px;margin:48px 0 18px">Order backlog — visibility through 2027</h3>
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">Backlog growth (RMB bn)</h3>
+      <div class="chart-wrap"><canvas id="backlogChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">April 2026 backlog composition</h3>
+      <div class="chart-wrap"><canvas id="backlogPie"></canvas></div>
+    </div>
+  </div>
+
+  <h3 style="font-size:20px;margin:48px 0 18px">Annual financial summary (UBS estimates)</h3>
+  <div class="dt-wrap">
+    <table class="dt">
+      <thead>
+        <tr>
+          <th>Metric (RMB mn)</th><th>2023</th><th>2024</th><th>2025</th><th>2026E</th><th>2027E</th><th>2028E</th><th>2029E</th><th>2030E</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Revenue</td><td class="mono">7,310</td><td class="mono">9,093</td><td class="mono">10,843</td><td class="mono">13,673</td><td class="mono">16,632</td><td class="mono">20,501</td><td class="mono">25,041</td><td class="mono">28,095</td></tr>
+        <tr><td>Gross profit</td><td class="mono">1,843</td><td class="mono">1,712</td><td class="mono">2,397</td><td class="mono">3,155</td><td class="mono">3,942</td><td class="mono">5,088</td><td class="mono">6,442</td><td class="mono">7,329</td></tr>
+        <tr><td>Gross margin %</td><td class="mono">25.2</td><td class="mono">18.8</td><td class="mono">22.1</td><td class="mono">23.1</td><td class="mono">23.7</td><td class="mono">24.8</td><td class="mono">25.7</td><td class="mono">26.1</td></tr>
+        <tr><td>EBIT</td><td class="mono">1,241</td><td class="mono">1,046</td><td class="mono">1,593</td><td class="mono">2,142</td><td class="mono">2,709</td><td class="mono">3,569</td><td class="mono">4,586</td><td class="mono">5,247</td></tr>
+        <tr><td>EBIT margin %</td><td class="mono">17.0</td><td class="mono">11.5</td><td class="mono">14.7</td><td class="mono">15.7</td><td class="mono">16.3</td><td class="mono">17.4</td><td class="mono">18.3</td><td class="mono">18.7</td></tr>
+        <tr><td>Net income</td><td class="mono">998</td><td class="mono">1,006</td><td class="mono">1,268</td><td class="mono">1,858</td><td class="mono">2,323</td><td class="mono">3,034</td><td class="mono">3,874</td><td class="mono">4,417</td></tr>
+        <tr><td>EPS (RMB)</td><td class="mono">1.45</td><td class="mono">1.46</td><td class="mono">1.84</td><td class="mono">2.70</td><td class="mono">3.38</td><td class="mono">4.41</td><td class="mono">5.63</td><td class="mono">6.42</td></tr>
+        <tr><td>DPS (RMB)</td><td class="mono">0.45</td><td class="mono">0.45</td><td class="mono">0.56</td><td class="mono">0.82</td><td class="mono">1.02</td><td class="mono">1.33</td><td class="mono">1.70</td><td class="mono">1.94</td></tr>
+        <tr><td>Net (debt)/cash</td><td class="mono">1,162</td><td class="mono">1,308</td><td class="mono">2,162</td><td class="mono">1,412</td><td class="mono">1,053</td><td class="mono">630</td><td class="mono">296</td><td class="mono">915</td></tr>
+        <tr><td>ROIC %</td><td class="mono">25.6</td><td class="mono">19.8</td><td class="mono">27.6</td><td class="mono">29.9</td><td class="mono">29.0</td><td class="mono">30.3</td><td class="mono">31.0</td><td class="mono">29.5</td></tr>
+        <tr><td>P/E (UBS)</td><td class="mono">32.5</td><td class="mono">32.4</td><td class="mono">29.2</td><td class="mono">22.6</td><td class="mono">18.1</td><td class="mono">13.9</td><td class="mono">10.8</td><td class="mono">9.5</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+
+<!-- ===== COST DRIVERS ===== -->
+<section id="costs" style="padding-top:40px">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Revenue & Cost Drivers</div>
+    <h2 class="section-title">What <span class="accent">moves the P&L</span>?</h2>
+    <p class="section-sub">The single biggest input cost is copper. Cable manufacturing is a copper conversion business — the metal alone can be 40–50% of bill-of-materials. Orient hedges 100% of submarine orders and 80–90% of land cable orders, but copper still drives a large part of quarterly volatility.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">Revenue mix drivers (FY25 → 2030E)</h3>
+      <div class="chart-wrap"><canvas id="revMixChart"></canvas></div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:14px">Submarine + HV grows from 49% of revenue (2025) to ~75% by 2030. That's the operating leverage in one chart.</p>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">Cost structure — submarine cable</h3>
+      <div class="chart-wrap"><canvas id="costChart"></canvas></div>
+      <p style="font-size:12.5px;color:var(--text-dim);margin-top:14px">Indicative cost breakdown. Copper dominates raw-material spend. Steel armor, XLPE, and lead make up the rest.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:20px;margin-top:48px;margin-bottom:18px">Sensitivity — UBS scenario value drivers (2027E)</h3>
+  <div class="dt-wrap">
+    <table class="dt">
+      <thead>
+        <tr>
+          <th>Scenario</th><th>PT (RMB)</th><th>2027E P/E</th><th>Subsea Volume Growth</th><th>Subsea GPM</th><th>Land Volume Growth</th><th>Land GPM</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong style="color:var(--green)">Upside</strong></td><td class="mono">98.0</td><td class="mono">25.1×</td><td class="mono">40%</td><td class="mono">33%</td><td class="mono">8%</td><td class="mono">10%</td></tr>
+        <tr><td><strong style="color:var(--cyan)">Base (UBS PT)</strong></td><td class="mono">78.0</td><td class="mono">23.1×</td><td class="mono">30%</td><td class="mono">31%</td><td class="mono">5%</td><td class="mono">8%</td></tr>
+        <tr><td><strong style="color:var(--red)">Downside</strong></td><td class="mono">43.0</td><td class="mono">20.5×</td><td class="mono">20%</td><td class="mono">30%</td><td class="mono">3%</td><td class="mono">5%</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+
+<!-- ===== VALUATION ===== -->
+<section id="valuation">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Valuation</div>
+    <h2 class="section-title">Cheap on <span class="accent">three different lenses</span></h2>
+    <p class="section-sub">P/E vs growth, vs. peers, vs. own history. Cheap on all three — and the stock has been beaten down on technicals (broke 50-day moving average in late 2025) creating an entry point.</p>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:36px">
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">Forward P/E compression (UBS)</h3>
+      <div class="chart-wrap"><canvas id="peChart"></canvas></div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:15px;font-weight:600">Peer comparison — 2027E P/E vs EPS growth</h3>
+      <div class="chart-wrap"><canvas id="peerScatter"></canvas></div>
+    </div>
+  </div>
+
+  <h3 style="font-size:20px;margin:24px 0 18px">Analyst target-price summary</h3>
+  <div class="dt-wrap" style="margin-bottom:36px">
+    <table class="dt">
+      <thead>
+        <tr><th>Broker</th><th>Rating</th><th>PT (RMB)</th><th>Implied Multiple</th><th>Method</th><th>As of</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>UBS</strong> (Yan/Yuan)</td><td><span style="color:var(--green);font-weight:600">Buy</span> (upgrade)</td><td class="mono">78.00</td><td class="mono">23.1× 2027E P/E</td><td>DCF · WACC 8.4%</td><td>22 Apr 2026</td></tr>
+        <tr><td><strong>Morgan Stanley</strong> (Hou/Li)</td><td><span style="color:var(--green);font-weight:600">Overweight</span></td><td class="mono">69.63</td><td class="mono">~22× 2026E P/E</td><td>DCF · WACC 7.4%</td><td>30 Mar 2026</td></tr>
+        <tr><td><strong>Huatai</strong></td><td><span style="color:var(--green);font-weight:600">Overweight</span></td><td class="mono">68.38</td><td class="mono">23.1× 2026E P/E</td><td>P/E multiple</td><td>22 Apr 2026</td></tr>
+        <tr><td><strong>Credit Suisse</strong></td><td><span style="color:var(--green);font-weight:600">Outperform</span></td><td class="mono">69.50</td><td class="mono">—</td><td>DCF · WACC 6.0%</td><td>Initiation</td></tr>
+        <tr><td><strong>Guosheng</strong></td><td><span style="color:var(--green);font-weight:600">Buy / Maintain</span></td><td class="mono">—</td><td class="mono">22.9× 2026E P/E</td><td>P/E multiple</td><td>4 May 2026</td></tr>
+        <tr><td><strong>Changjiang</strong></td><td><span style="color:var(--green);font-weight:600">Buy</span></td><td class="mono">—</td><td class="mono">17.4× 2026E P/E</td><td>P/E multiple</td><td>27 Nov 2025</td></tr>
+        <tr><td><strong>William O'Neil</strong></td><td><span style="color:var(--yellow);font-weight:600">Removed Buy</span></td><td class="mono">—</td><td class="mono">—</td><td>Technical / Momentum</td><td>21 Nov 2025</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="scenarios">
+    <div class="scen downside">
+      <div class="scen-label">Bear · UBS</div>
+      <div class="scen-px">RMB 43</div>
+      <div class="scen-ret" style="color:var(--red)">−30% downside</div>
+      <ul>
+        <li>Subsea volume +20% only</li>
+        <li>GPM compresses to 30%</li>
+        <li>Land growth +3%</li>
+        <li>Copper passthrough fails</li>
+      </ul>
+    </div>
+    <div class="scen base">
+      <div class="scen-label">Base · UBS</div>
+      <div class="scen-px">RMB 78</div>
+      <div class="scen-ret" style="color:var(--cyan)">+28% upside</div>
+      <ul>
+        <li>Subsea volume +30%</li>
+        <li>GPM 31%</li>
+        <li>Overseas mix 15–20%</li>
+        <li>Hits 100GW by 2030</li>
+      </ul>
+    </div>
+    <div class="scen upside">
+      <div class="scen-label">Bull · UBS</div>
+      <div class="scen-px">RMB 98</div>
+      <div class="scen-ret" style="color:var(--green)">+60% upside</div>
+      <ul>
+        <li>Subsea volume +40%</li>
+        <li>GPM 33%</li>
+        <li>Overseas mix >25%</li>
+        <li>XLinks moves forward</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== BULL / BEAR ===== -->
+<section id="bullbear">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Bull vs Bear</div>
+    <h2 class="section-title">The <span class="accent">debate</span>, distilled</h2>
+    <p class="section-sub">Click between bull and bear views. Both arguments are real. The bull view is structural; the bear view is cyclical / timing-related.</p>
+  </div>
+
+  <div class="bullbear">
+    <div class="bb-tabs">
+      <button class="bb-tab active bull" data-target="bull">🟢 Bull Case</button>
+      <button class="bb-tab bear" data-target="bear">🔴 Bear Case</button>
+    </div>
+
+    <div class="bb-content active" id="bull">
+      <div class="bb-points">
+        <div class="bb-point bull">
+          <h4>RMB 19.3 bn backlog <span class="tag">visibility</span></h4>
+          <p>Provides multi-quarter revenue visibility. 50–60% of subsea orders are 500kV product — the highest-margin segment. Backlog secures 2026/2027 deliveries even before new wins.</p>
+        </div>
+        <div class="bb-point bull">
+          <h4>Technical moat in HVDC <span class="tag">structural</span></h4>
+          <p>Only ~10 global firms with 500kV+ submarine capability. 83% of offshore wind losses are cable-related, creating strict bank/insurance gatekeeping. Six approved State-Grid HVDC suppliers — Orient is one.</p>
+        </div>
+        <div class="bb-point bull">
+          <h4>European wedge gaining traction <span class="tag">growth</span></h4>
+          <p>29 European projects verified. 10% cost advantage vs European competitors with no quality gap. European suppliers are capacity-constrained. AR7 8.4GW, France 10GW tender, Hamburg Declaration support multi-year demand.</p>
+        </div>
+        <div class="bb-point bull">
+          <h4>15th Five-Year Plan: 10.6GW/yr <span class="tag">policy</span></h4>
+          <p>+39% vs 14th Plan. 100GW cumulative by 2030 implies 10GW/yr annual installs. UBS estimates 50GW project pipeline supports 10–15GW/yr installations.</p>
+        </div>
+        <div class="bb-point bull">
+          <h4>Operating leverage <span class="tag green">margin</span></h4>
+          <p>FY25 net profit +26% YoY vs revenue +19% YoY. Q1 2026 net profit +32% YoY on rising 500kV mix and tight cost controls. Mix shift to higher-margin product is the engine.</p>
+        </div>
+        <div class="bb-point bull">
+          <h4>Fortress balance sheet <span class="tag">defensive</span></h4>
+          <p>Net cash RMB 2.16bn. Debt/equity just 9.8%. Generates RMB 1.96bn OCF in 2025. Funds RMB-billion capacity expansions entirely from internal cash flow without external dilution.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bb-content" id="bear">
+      <div class="bb-points">
+        <div class="bb-point bear">
+          <h4>Copper input volatility <span class="tag red">margin risk</span></h4>
+          <p>Submarine cables are 8–13% of total offshore wind project cost. Copper dominates bill-of-materials. If grid-parity tariff cuts force downstream operators to push costs upstream, Orient's margins compress.</p>
+        </div>
+        <div class="bb-point bear">
+          <h4>Q2 2025 saw a 49.6% profit drop <span class="tag red">execution</span></h4>
+          <p>Delayed deliveries compressed GPM 6.3ppts in Q2 2025. This kind of quarterly variability is structural — submarine cable revenue recognition is lumpy and depends on offshore construction windows.</p>
+        </div>
+        <div class="bb-point bear">
+          <h4>Capacity expansion = price competition <span class="tag red">competitive</span></h4>
+          <p>Zhongtian and Hengtong are also expanding capacity. In a post-subsidy grid-parity world, simultaneous capacity additions could trigger industry-wide ASP cuts and erode the 33% GPM.</p>
+        </div>
+        <div class="bb-point bear">
+          <h4>Geopolitical risk in Europe <span class="tag red">tail risk</span></h4>
+          <p>UK blocked Mingyang from building a wind turbine factory in Scotland on national-security grounds. Chinese submarine cable suppliers could face similar bans — particularly in HVDC interconnectors with critical-infrastructure status.</p>
+        </div>
+        <div class="bb-point bear">
+          <h4>Installation bottlenecks cap demand <span class="tag red">demand</span></h4>
+          <p>The practical annual offshore wind installation ceiling in China and Europe may be below static market expectations. Bottlenecks in sea-use coordination, military airspace, port logistics, grid connections, and installation vessel availability limit what can actually be built.</p>
+        </div>
+        <div class="bb-point bear">
+          <h4>Technical downgrade signal <span class="tag red">sentiment</span></h4>
+          <p>William O'Neil removed Buy in November 2025 after the stock broke 50-day moving average. Market temporarily penalising on near-term sentiment despite intact fundamentals. Huatai trimmed 2026 net profit forecast 8.7% on project-timing concerns.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== RISKS ===== -->
+<section id="risks">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Risk Matrix</div>
+    <h2 class="section-title">What could <span class="accent">break the thesis</span></h2>
+    <p class="section-sub">Ranked by combined probability × severity. The top three are the ones to actively monitor; the bottom three are tail risks worth knowing about but not trading on.</p>
+  </div>
+
+  <div class="risk-grid">
+    <div class="risk-card">
+      <span class="risk-pill high">High</span>
+      <div class="rt">Copper price spike not passed through</div>
+      <div class="rd">Submarine = 8–13% of offshore project cost; copper dominates BoM. Orient hedges 100% of subsea orders and 80–90% of land cable. New orders can pass through, but unhedged inventory carries margin risk.</div>
+    </div>
+    <div class="risk-card">
+      <span class="risk-pill high">High</span>
+      <div class="rt">Delivery slippage on key projects</div>
+      <div class="rd">Fanshi I/II, Inch Cape are concentrated revenue events. Sea-use approvals, military airspace, vessel availability, weather all matter. Q2 2025 showed how -6.3ppt GPM compression hits when deliveries push out.</div>
+    </div>
+    <div class="risk-card">
+      <span class="risk-pill med">Medium</span>
+      <div class="rt">European national-security ban</div>
+      <div class="rd">UK blocked Mingyang Scotland wind factory on national security. Cable interconnectors are arguably more critical. A targeted ban on Chinese subsea cable in Europe would compress the 15–20% overseas revenue target.</div>
+    </div>
+    <div class="risk-card">
+      <span class="risk-pill med">Medium</span>
+      <div class="rt">Capacity expansion by Zhongtian / Hengtong</div>
+      <div class="rd">Top-3 are all adding capacity simultaneously. Post-subsidy grid-parity world could trigger price competition that erodes 33% subsea GPM toward 25–28%.</div>
+    </div>
+    <div class="risk-card">
+      <span class="risk-pill med">Medium</span>
+      <div class="rt">Sea-use coordination bottlenecks</div>
+      <div class="rd">Static market expectations of 10GW/yr may exceed practical installation capacity. Approvals, port logistics, grid connection points, installation vessel availability all constrain build rate.</div>
+    </div>
+    <div class="risk-card">
+      <span class="risk-pill med">Medium</span>
+      <div class="rt">UK / EU local-content requirements</div>
+      <div class="rd">Even without an outright ban, EU industrial policy increasingly favours domestic suppliers (Net-Zero Industry Act). Local content quotas could squeeze the 10% Chinese price advantage.</div>
+    </div>
+    <div class="risk-card">
+      <span class="risk-pill low">Low</span>
+      <div class="rt">New 500kV entrant erodes oligopoly</div>
+      <div class="rd">Technology takes 5–10 years to develop. Port permits take additional years. Realistic in long-term but unlikely in next 3 years.</div>
+    </div>
+    <div class="risk-card">
+      <span class="risk-pill low">Low</span>
+      <div class="rt">Floating wind tech doesn't materialise</div>
+      <div class="rd">William O'Neil cites 80% cost reduction for floating wind by 2050. If timeline slips materially, dynamic cable demand pushes into outer years. Doesn't change near-term thesis.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== TIMELINE / CATALYSTS ===== -->
+<section id="catalysts">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Roadmap</div>
+    <h2 class="section-title">The <span class="accent">2025–2030 timeline</span></h2>
+    <p class="section-sub">Discrete catalysts that move the stock. The 12-month window has multiple positive triggers; the 2027 inflection is the largest single re-rate event.</p>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-date">Q2–Q3 2026 · NEXT 90 DAYS</div>
+      <div class="tl-title">Peak subsea delivery season</div>
+      <div class="tl-desc">UBS expects Q2/Q3 2026 to mark the peak shipment window. RMB 10.4bn subsea backlog converts to revenue. Watch for sequential GPM expansion as 500kV mix rises in the income statement.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">H2 2026</div>
+      <div class="tl-title">European tender momentum</div>
+      <div class="tl-desc">UK AR7 8.4GW allocation moves into subsea-cable procurement phase. France AO10 fall 2026 tender. Germany CfD framework finalisation. Each is a potential RMB 1–3bn new order opportunity.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2026 · ONGOING</div>
+      <div class="tl-title">Yangjiang Phase 2 + Yantai construction</div>
+      <div class="tl-desc">Yangjiang completed; Phase 1 at 85% utilization. Yantai (Shandong) high-end submarine cable base under construction, 1–2 years to come online. Watch for capacity utilization reporting.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2027</div>
+      <div class="tl-title">Inch Cape grid connection</div>
+      <div class="tl-desc">UK's largest offshore wind project goes live with Orient cable. This becomes the reference for follow-on European tender wins. Earnings re-rate likely as 2027 EPS hits RMB 3.38 (UBS) and P/E compresses to 18×.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2028</div>
+      <div class="tl-title">±800kV HVDC capability</div>
+      <div class="tl-desc">Active R&D for next-gen HVDC. If commercialized, opens up trans-oceanic interconnector market (Morocco-UK, ASEAN cross-border, Middle East-Europe routes). Would extend moat by another decade.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">2030 · STRUCTURAL</div>
+      <div class="tl-title">100GW cumulative offshore wind in China</div>
+      <div class="tl-desc">15th Five-Year Plan target reached. UBS revenue forecast RMB 28bn (+159% from 2025). Floating offshore wind moves toward grid parity (William O'Neil: 80% cost reduction by 2050) — opens dynamic cable market.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== FLOATING WIND OPTION ===== -->
+<section id="floating" style="padding-top:40px">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Long-Term Option Value</div>
+    <h2 class="section-title">The <span class="accent">floating offshore wind</span> option</h2>
+    <p class="section-sub">A free option, essentially. If floating wind reaches grid parity in the 2030s, Orient is one of three or four global companies that can build the dynamic cables that connect floating turbines to the seabed. That cable is harder than fixed-bottom — it moves with the turbine in waves and currents, requiring custom fatigue-resistant engineering.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Why floating wind matters</h3>
+      <p class="subhead" style="margin-bottom:14px">Most of the world's best wind resources are in water too deep for fixed-bottom turbines (>60m). Floating platforms unlock that — but they require <em>dynamic cables</em> that can survive 25 years of constant motion. William O'Neil projects 80% cost reduction by 2050, enabling grid-parity commercial development.</p>
+      <p class="subhead">Markets opened by floating: deep Atlantic (UK, France, Norway, US Pacific), Japan, Korea, Taiwan, parts of the Mediterranean. All currently uneconomic, all become massive demand if floating reaches grid parity.</p>
+    </div>
+    <div class="card">
+      <h3>Orient's positioning</h3>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-soft);font-size:13.5px"><span style="color:var(--text-mute)">Dynamic cable capability</span><span style="color:var(--green);font-weight:600">Producing</span></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-soft);font-size:13.5px"><span style="color:var(--text-mute)">Deep-sea umbilical (3,000m)</span><span style="color:var(--green);font-weight:600">China's first</span></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-soft);font-size:13.5px"><span style="color:var(--text-mute)">Jiangyang base capacity</span><span class="mono">150km/yr dynamic</span></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-soft);font-size:13.5px"><span style="color:var(--text-mute)">European R&D center</span><span style="color:var(--cyan);font-weight:600">In planning</span></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:13.5px"><span style="color:var(--text-mute)">CNOOC Kaiping 11-4 umbilical</span><span style="color:var(--green);font-weight:600">Secured</span></div>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:24px">
+    <strong>How to think about it →</strong> Don't pay for it in the base case (UBS valuation doesn't credit floating wind materially). But if the technology curve plays out, Orient becomes a much larger company by 2035–2040 because it's already on the dynamic-cable learning curve and competitors aren't. This is the kind of optionality that doesn't show up in DCF but shows up in 10-year compounders.
+  </div>
+</div>
+</section>
+
+<!-- ===== SUPPLY CHAIN ===== -->
+<section id="supplychain" style="padding-top:40px">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Supply Chain & Customers</div>
+    <h2 class="section-title">Who Orient <span class="accent">buys from and sells to</span></h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 style="font-size:16px">Upstream — Suppliers</h3>
+      <p class="subhead">No single supplier dominates; the supply chain is commoditized at the raw-material layer. Copper exposure is the biggest single risk.</p>
+      <div style="margin-top:14px">
+        <div class="bar-h-row" style="margin-bottom:10px"><div class="bar-h-label">Copper</div><div class="bar-h-track"><div class="bar-h-fill" style="width:65%;background:var(--copper)">Heavy exposure</div></div></div>
+        <div class="bar-h-row" style="margin-bottom:10px"><div class="bar-h-label">Aluminum</div><div class="bar-h-track"><div class="bar-h-fill alt" style="width:35%;background:#404a60">~1/3 copper price</div></div></div>
+        <div class="bar-h-row" style="margin-bottom:10px"><div class="bar-h-label">Steel (armor)</div><div class="bar-h-track"><div class="bar-h-fill alt" style="width:25%;background:#404a60">Standard procurement</div></div></div>
+        <div class="bar-h-row" style="margin-bottom:10px"><div class="bar-h-label">XLPE / Lead</div><div class="bar-h-track"><div class="bar-h-fill alt" style="width:20%;background:#404a60">Specialty chemical</div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="font-size:16px">Downstream — Customers</h3>
+      <p class="subhead">Concentrated mix of SOE utilities, oil & gas majors, and increasingly European offshore wind developers.</p>
+      <div style="margin-top:8px">
+        <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-soft);font-size:13.5px"><span style="color:var(--text-mute)">China Three Gorges</span><span class="mono">Yangjiang, Yangxi Shaba</span></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-soft);font-size:13.5px"><span style="color:var(--text-mute)">CGN (China General Nuclear)</span><span class="mono">Fanshi I & II · RMB 1.7bn</span></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-soft);font-size:13.5px"><span style="color:var(--text-mute)">State Grid + Southern Power</span><span class="mono">HVDC frameworks</span></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-soft);font-size:13.5px"><span style="color:var(--text-mute)">CNOOC</span><span class="mono">Kaiping, Lingshui umbilicals</span></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-soft);font-size:13.5px"><span style="color:var(--text-mute)">SSEN / Inch Cape (UK)</span><span class="mono">RMB 1.8bn</span></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 0;font-size:13.5px"><span style="color:var(--text-mute)">XLCC / XLinks (UK)</span><span class="mono">Equity + supply</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== LIVE CHART ===== -->
+<section id="chart">
+<div class="container">
+  <div class="section-header">
+    <div class="section-eyebrow">Market Data</div>
+    <h2 class="section-title">Live <span class="accent">stock chart</span></h2>
+    <p class="section-sub">603606.SH on the Shanghai Stock Exchange. Interactive TradingView widget below — change timeframes, add indicators, study technicals.</p>
+  </div>
+  <div class="tv-wrap">
+    <div class="tradingview-widget-container" style="height:100%;width:100%">
+      <div id="tvWidget" style="height:100%;width:100%"></div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--text-mute);margin-top:14px;text-align:center">Chart powered by TradingView · 603606 on Shanghai Stock Exchange · 15-min delayed unless logged in</p>
+</div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container">
+    <div>
+      <h5>Ningbo Orient Wires & Cables (603606 CH)</h5>
+      <p>First-principles interactive research dashboard. All numbers in this dashboard are sourced from the PDFs in the working folder: AlphaSense GenSearch reports, UBS, Morgan Stanley, Huatai, Guosheng, William O'Neil, Jefferies, Credit Suisse, Horizon Insights, and company annual / interim reports.</p>
+      <p style="margin-top:14px;color:var(--text-mute)">This is not investment advice. Built for personal research; numbers reflect data as of the source documents' publication dates. Always verify with primary sources before acting.</p>
+    </div>
+    <div>
+      <h5>Source documents</h5>
+      <ul>
+        <li>Company Primer (AlphaSense, May 2026)</li>
+        <li>Bull-Bear Analysis (AlphaSense, May 2026)</li>
+        <li>UBS Upgrade to Buy (31 Mar 2026)</li>
+        <li>UBS 1Q26 First Read (22 Apr 2026)</li>
+        <li>Morgan Stanley FY25 (30 Mar 2026)</li>
+        <li>MS 1Q26 Revenue Recognition (22 Apr)</li>
+        <li>Supply Chain Map (AlphaSense)</li>
+        <li>Quality Assessment (AlphaSense)</li>
+      </ul>
+    </div>
+    <div>
+      <h5>Key references</h5>
+      <ul>
+        <li>15th Five-Year Plan offshore wind targets</li>
+        <li>UK AR7 auction · Hamburg Declaration</li>
+        <li>UBS DCF model · WACC 8.4%</li>
+        <li>MS DCF model · WACC 7.4%</li>
+        <li>Huatai 2026E P/E 23.1×</li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== TradingView ===== -->
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+  new TradingView.widget({
+    container_id: "tvWidget",
+    autosize: true,
+    symbol: "SSE:603606",
+    interval: "D",
+    timezone: "Asia/Shanghai",
+    theme: "dark",
+    style: "1",
+    locale: "en",
+    toolbar_bg: "#131a2b",
+    enable_publishing: false,
+    backgroundColor: "rgba(19, 26, 43, 1)",
+    gridColor: "rgba(31, 41, 64, 0.5)",
+    hide_legend: false,
+    hide_side_toolbar: false,
+    allow_symbol_change: true,
+    studies: ["MASimple@tv-basicstudies"],
+    show_popup_button: false,
+    save_image: false
+  });
+</script>
+
+<!-- ===== Main JS ===== -->
+<script>
+// === Chart.js global defaults ===
+Chart.defaults.color = '#9aa6bd';
+Chart.defaults.borderColor = 'rgba(31,41,64,0.5)';
+Chart.defaults.font.family = "Inter, sans-serif";
+Chart.defaults.plugins.tooltip.backgroundColor = '#131a2b';
+Chart.defaults.plugins.tooltip.titleColor = '#00d4ff';
+Chart.defaults.plugins.tooltip.bodyColor = '#e8eef7';
+Chart.defaults.plugins.tooltip.borderColor = '#1f2940';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.displayColors = true;
+
+const CYAN = '#00d4ff';
+const COPPER = '#ff7a45';
+const GREEN = '#3ddc97';
+const RED = '#ff5470';
+const YELLOW = '#f5c542';
+const PURPLE = '#9b6dff';
+const MUTED = '#6a7691';
+
+// === Animated counters ===
+const counters = document.querySelectorAll('[data-counter]');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = parseFloat(el.dataset.counter);
+      const prefix = el.dataset.prefix || '';
+      const suffix = el.dataset.suffix || '';
+      const duration = 1800;
+      const start = performance.now();
+      const fmt = (v) => {
+        if (target < 10) return v.toFixed(2);
+        if (target < 100) return v.toFixed(1);
+        return Math.round(v).toString();
+      };
+      function tick(now) {
+        const t = Math.min((now-start)/duration, 1);
+        const eased = 1 - Math.pow(1-t, 3);
+        el.textContent = prefix + fmt(target * eased) + suffix;
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      observer.unobserve(el);
+    }
+  });
+}, {threshold: 0.4});
+counters.forEach(c => observer.observe(c));
+
+// === Fade in on scroll ===
+const fadeEls = document.querySelectorAll('.fadein');
+const fadeObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); fadeObs.unobserve(e.target);}});
+}, {threshold:.15});
+fadeEls.forEach(e => fadeObs.observe(e));
+
+// === Province map tooltip ===
+const tip = document.getElementById('provinceTooltip');
+document.querySelectorAll('.province-dot').forEach(dot => {
+  dot.addEventListener('mouseenter', e => {
+    const name = dot.dataset.name;
+    const cap = dot.dataset.cap;
+    const pipe = dot.dataset.pipeline;
+    tip.innerHTML = '<h5>'+name+'</h5><p>'+cap+'</p><p class="pt-val">'+pipe+'</p>';
+    tip.style.opacity = 1;
+  });
+  dot.addEventListener('mousemove', e => {
+    const wrap = document.querySelector('.map-wrap').getBoundingClientRect();
+    tip.style.left = (e.clientX - wrap.left + 14) + 'px';
+    tip.style.top  = (e.clientY - wrap.top + 14) + 'px';
+  });
+  dot.addEventListener('mouseleave', () => { tip.style.opacity = 0; });
+});
+
+// === Bull/Bear tabs ===
+document.querySelectorAll('.bb-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.bb-tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.bb-content').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.target).classList.add('active');
+  });
+});
+
+// === CHARTS ===
+const gridStyle = { color: 'rgba(31,41,64,0.4)', drawBorder:false };
+const axisStyle = { color: '#6a7691', font: { size: 11 } };
+
+// 1. Segment Revenue Doughnut
+new Chart(document.getElementById('segRevenue'), {
+  type:'doughnut',
+  data:{
+    labels:['Submarine + HV cables','Land cables (MV/LV)','Marine engineering'],
+    datasets:[{
+      data:[5.36, 4.73, 0.74],
+      backgroundColor:[CYAN, COPPER, PURPLE],
+      borderColor:'#131a2b', borderWidth:3
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    cutout:'60%',
+    plugins:{
+      legend:{position:'bottom', labels:{padding:14, usePointStyle:true, pointStyle:'circle', boxWidth:8}},
+      tooltip:{callbacks:{label:c=>c.label+': RMB '+c.parsed.toFixed(2)+'bn ('+((c.parsed/10.83)*100).toFixed(0)+'%)'}}
+    }
+  }
+});
+
+// 2. Segment Gross Profit
+new Chart(document.getElementById('segGP'), {
+  type:'doughnut',
+  data:{
+    labels:['Submarine + HV cables','Land cables (MV/LV)','Marine engineering'],
+    datasets:[{
+      data:[1.79, 0.41, 0.19],
+      backgroundColor:[CYAN, COPPER, PURPLE],
+      borderColor:'#131a2b', borderWidth:3
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    cutout:'60%',
+    plugins:{
+      legend:{position:'bottom', labels:{padding:14, usePointStyle:true, pointStyle:'circle', boxWidth:8}},
+      tooltip:{callbacks:{label:c=>c.label+': RMB '+c.parsed.toFixed(2)+'bn ('+((c.parsed/2.39)*100).toFixed(0)+'%)'}}
+    }
+  }
+});
+
+// 3. Market Share
+new Chart(document.getElementById('marketShare'), {
+  type:'bar',
+  data:{
+    labels:['Zhongtian Tech','Ningbo Orient','Hengtong Optic-Electric','Others'],
+    datasets:[{
+      data:[37, 33, 17, 13],
+      backgroundColor:[COPPER, CYAN, PURPLE, MUTED],
+      borderRadius:6
+    }]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.parsed.x+'%'}}},
+    scales:{x:{ticks:{...axisStyle, callback:v=>v+'%'},grid:gridStyle, beginAtZero:true, max:50}, y:{ticks:axisStyle, grid:{display:false}}}
+  }
+});
+
+// 4. Revenue (UBS)
+new Chart(document.getElementById('revenueChart'), {
+  type:'bar',
+  data:{
+    labels:['2023','2024','2025','2026E','2027E','2028E','2029E','2030E'],
+    datasets:[{
+      label:'Revenue (RMB mn)',
+      data:[7310,9093,10843,13673,16632,20501,25041,28095],
+      backgroundColor:(ctx)=> ctx.dataIndex<3 ? CYAN : 'rgba(0,212,255,0.55)',
+      borderRadius:6
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>'RMB '+(c.parsed.y/1000).toFixed(2)+' bn'}}},
+    scales:{x:{ticks:axisStyle, grid:{display:false}}, y:{ticks:{...axisStyle, callback:v=>(v/1000)+'bn'}, grid:gridStyle, beginAtZero:true}}
+  }
+});
+
+// 5. EBIT Margin
+new Chart(document.getElementById('marginChart'), {
+  type:'line',
+  data:{
+    labels:['2023','2024','2025','2026E','2027E','2028E','2029E','2030E'],
+    datasets:[
+      {label:'Gross Margin %', data:[25.2,18.8,22.1,23.1,23.7,24.8,25.7,26.1], borderColor:CYAN, backgroundColor:'rgba(0,212,255,0.10)', fill:true, tension:.35, pointBackgroundColor:CYAN, pointRadius:4},
+      {label:'EBIT Margin %', data:[17.0,11.5,14.7,15.7,16.3,17.4,18.3,18.7], borderColor:COPPER, backgroundColor:'rgba(255,122,69,0.10)', fill:true, tension:.35, pointBackgroundColor:COPPER, pointRadius:4}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'top', labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(1)+'%'}}},
+    scales:{x:{ticks:axisStyle, grid:gridStyle}, y:{ticks:{...axisStyle, callback:v=>v+'%'}, grid:gridStyle, beginAtZero:false, min:8}}
+  }
+});
+
+// 6. EPS
+new Chart(document.getElementById('epsChart'), {
+  type:'line',
+  data:{
+    labels:['2023','2024','2025','2026E','2027E','2028E','2029E','2030E'],
+    datasets:[{
+      label:'EPS (RMB)',
+      data:[1.45,1.46,1.84,2.70,3.38,4.41,5.63,6.42],
+      borderColor:CYAN, backgroundColor:'rgba(0,212,255,0.1)',
+      fill:true, tension:.35, pointBackgroundColor:CYAN, pointRadius:5
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>'RMB '+c.parsed.y.toFixed(2)}}},
+    scales:{x:{ticks:axisStyle, grid:gridStyle}, y:{ticks:{...axisStyle, callback:v=>'¥'+v}, grid:gridStyle, beginAtZero:true}}
+  }
+});
+
+// 7. ROIC vs ROE
+new Chart(document.getElementById('roicChart'), {
+  type:'line',
+  data:{
+    labels:['2023','2024','2025','2026E','2027E','2028E','2029E','2030E'],
+    datasets:[
+      {label:'ROIC %', data:[25.6,19.8,27.6,29.9,29.0,30.3,31.0,29.5], borderColor:CYAN, backgroundColor:'transparent', tension:.35, pointBackgroundColor:CYAN, pointRadius:4},
+      {label:'ROE %', data:[16.9,15.3,16.7,20.6,21.8,23.9,25.3,23.9], borderColor:GREEN, backgroundColor:'transparent', tension:.35, pointBackgroundColor:GREEN, pointRadius:4}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'top', labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(1)+'%'}}},
+    scales:{x:{ticks:axisStyle, grid:gridStyle}, y:{ticks:{...axisStyle, callback:v=>v+'%'}, grid:gridStyle, beginAtZero:false, min:10}}
+  }
+});
+
+// 8. Quarterly Net Profit
+new Chart(document.getElementById('quarterlyChart'), {
+  type:'bar',
+  data:{
+    labels:['Q1 25','Q2 25','Q3 25','Q4 25','Q1 26'],
+    datasets:[{
+      label:'Net profit (RMB mn)',
+      data:[281,192,441,357,372],
+      backgroundColor:[CYAN, RED, GREEN, YELLOW, CYAN],
+      borderRadius:6
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>'RMB '+c.parsed.y+' mn'}}},
+    scales:{x:{ticks:axisStyle, grid:{display:false}}, y:{ticks:axisStyle, grid:gridStyle, beginAtZero:true}}
+  }
+});
+
+// 9. Submarine Quarterly
+new Chart(document.getElementById('submarineQChart'), {
+  type:'bar',
+  data:{
+    labels:['Q1 25','Q2 25','Q3 25','Q4 25','Q1 26'],
+    datasets:[{
+      label:'Submarine + HV revenue (RMB mn)',
+      data:[1200,758,1587,1815,1497],
+      backgroundColor:CYAN, borderRadius:6
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>'RMB '+c.parsed.y+' mn'}}},
+    scales:{x:{ticks:axisStyle, grid:{display:false}}, y:{ticks:axisStyle, grid:gridStyle, beginAtZero:true}}
+  }
+});
+
+// 10. Backlog growth
+new Chart(document.getElementById('backlogChart'), {
+  type:'line',
+  data:{
+    labels:['Q4 23','Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Apr 26'],
+    datasets:[{
+      label:'Total backlog (RMB bn)',
+      data:[10.5,12.0,13.2,14.8,16.0,15.8,17.1,18.5,19.3,18.4],
+      borderColor:CYAN, backgroundColor:'rgba(0,212,255,0.15)',
+      fill:true, tension:.35, pointBackgroundColor:CYAN, pointRadius:5
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>'RMB '+c.parsed.y.toFixed(1)+' bn'}}},
+    scales:{x:{ticks:axisStyle, grid:gridStyle}, y:{ticks:{...axisStyle, callback:v=>v+'bn'}, grid:gridStyle, beginAtZero:true, max:22}}
+  }
+});
+
+// 11. Backlog pie
+new Chart(document.getElementById('backlogPie'), {
+  type:'doughnut',
+  data:{
+    labels:['Submarine + HV cables','Land cables','Offshore engineering'],
+    datasets:[{
+      data:[10.4, 4.4, 3.7],
+      backgroundColor:[CYAN, COPPER, PURPLE],
+      borderColor:'#131a2b', borderWidth:3
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    cutout:'60%',
+    plugins:{legend:{position:'bottom', labels:{padding:14, usePointStyle:true, pointStyle:'circle', boxWidth:8}}, tooltip:{callbacks:{label:c=>c.label+': RMB '+c.parsed.toFixed(1)+'bn ('+((c.parsed/18.5)*100).toFixed(0)+'%)'}}}
+  }
+});
+
+// 12. Revenue mix forecast (stacked area)
+new Chart(document.getElementById('revMixChart'), {
+  type:'bar',
+  data:{
+    labels:['2025','2026E','2027E','2028E','2029E','2030E'],
+    datasets:[
+      {label:'Submarine + HV', data:[5360,7700,10500,14000,18500,22000], backgroundColor:CYAN, stack:'1', borderRadius:0},
+      {label:'Land cable', data:[4730,5100,5300,5500,5700,5800], backgroundColor:COPPER, stack:'1'},
+      {label:'Marine engineering', data:[742,873,832,1001,841,295], backgroundColor:PURPLE, stack:'1'}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'top', labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8}}, tooltip:{callbacks:{label:c=>c.dataset.label+': RMB '+(c.parsed.y/1000).toFixed(1)+'bn'}}},
+    scales:{x:{ticks:axisStyle, grid:{display:false}, stacked:true}, y:{ticks:{...axisStyle, callback:v=>(v/1000)+'bn'}, grid:gridStyle, stacked:true, beginAtZero:true}}
+  }
+});
+
+// 13. Cost breakdown
+new Chart(document.getElementById('costChart'), {
+  type:'pie',
+  data:{
+    labels:['Copper conductor','Steel armor','XLPE insulation','Lead sheath','Optical fiber','Labor & overhead'],
+    datasets:[{
+      data:[45, 15, 12, 8, 3, 17],
+      backgroundColor:[COPPER, '#7d8ba8', CYAN, '#94a2bd', PURPLE, MUTED],
+      borderColor:'#131a2b', borderWidth:2
+    }]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'right', labels:{padding:10, usePointStyle:true, pointStyle:'circle', boxWidth:8, font:{size:11}}}, tooltip:{callbacks:{label:c=>c.label+': ~'+c.parsed+'%'}}}
+  }
+});
+
+// 14. PE band
+new Chart(document.getElementById('peChart'), {
+  type:'line',
+  data:{
+    labels:['2025','2026E','2027E','2028E','2029E','2030E'],
+    datasets:[
+      {label:'P/E', data:[29.2,22.6,18.1,13.9,10.8,9.5], borderColor:CYAN, backgroundColor:'rgba(0,212,255,0.12)', fill:true, tension:.35, pointBackgroundColor:CYAN, pointRadius:5},
+      {label:'Peer avg (27x)', data:[27,27,27,27,27,27], borderColor:MUTED, borderDash:[5,5], pointRadius:0, fill:false},
+      {label:'Hist avg (~27x)', data:[27,27,27,27,27,27], borderColor:'transparent', pointRadius:0}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{position:'top', labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(1)+'x'}}},
+    scales:{x:{ticks:axisStyle, grid:gridStyle}, y:{ticks:{...axisStyle, callback:v=>v+'×'}, grid:gridStyle, beginAtZero:true, max:35}}
+  }
+});
+
+// 15. Peer scatter
+new Chart(document.getElementById('peerScatter'), {
+  type:'scatter',
+  data:{
+    datasets:[
+      {label:'Ningbo Orient', data:[{x:25, y:18.1}], backgroundColor:CYAN, pointRadius:14, pointHoverRadius:18, borderColor:'#fff', borderWidth:2},
+      {label:'ZTT (Zhongtian)', data:[{x:18, y:20.4}], backgroundColor:COPPER, pointRadius:10},
+      {label:'HTGD (Hengtong)', data:[{x:17, y:29.5}], backgroundColor:PURPLE, pointRadius:10},
+      {label:'Industry avg', data:[{x:20, y:22.7}], backgroundColor:MUTED, pointRadius:8}
+    ]
+  },
+  options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'top', labels:{usePointStyle:true, pointStyle:'circle', boxWidth:8}},
+      tooltip:{callbacks:{label:c=>c.dataset.label+' · '+c.parsed.x+'% EPS growth · '+c.parsed.y+'× PE'}}
+    },
+    scales:{
+      x:{title:{display:true, text:'2027E EPS Growth (%)', color:'#9aa6bd'}, ticks:{...axisStyle, callback:v=>v+'%'}, grid:gridStyle, min:10, max:30},
+      y:{title:{display:true, text:'2027E P/E (×)', color:'#9aa6bd'}, ticks:{...axisStyle, callback:v=>v+'×'}, grid:gridStyle, min:14, max:32}
+    }
+  }
+});
+
+</script>
+
+</body>
+</html>
