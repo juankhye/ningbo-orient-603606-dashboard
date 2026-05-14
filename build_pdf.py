@@ -283,8 +283,12 @@ def build():
         ("5.", "Why now? The two big tailwinds", "China's policy push and Europe's capacity crunch"),
         ("6.", "The numbers in plain English", "Revenue, margins, backlog, balance sheet, valuation"),
         ("7.", "What could break the story", "Three real risks worth tracking"),
-        ("8.", "How to navigate the dashboard", "What each section covers"),
-        ("9.", "Glossary", "Plain-English definitions of every jargon term"),
+        ("8.", "The operational proof", "Take-or-pay smoking gun, customer decoding, per-km economics"),
+        ("9.", "Pipeline reality check", "China 47% track-rate; European supply-demand gap; geopolitical haircut"),
+        ("10.", "Tripwires and disclosure gaps", "Six quantified short-flip thresholds; the inventory tell"),
+        ("11.", "Dated catalyst calendar", "Quarter-by-quarter events through 2028"),
+        ("12.", "How to navigate the dashboard", "What each section covers"),
+        ("13.", "Glossary", "Plain-English definitions of every jargon term"),
     ]
     for num, title, sub in toc_items:
         data = [[Paragraph(f"<b><font color='#0073b3'>{num}</font></b>", S['toc_line']),
@@ -614,8 +618,395 @@ def build():
 
     story.append(PageBreak())
 
-    # ============ SECTION 8: DASHBOARD GUIDE ============
-    story.append(SectionHeader(8, "How to navigate the dashboard"))
+    # ============ SECTION 8: THE OPERATIONAL PROOF ============
+    story.append(SectionHeader(8, "The operational proof"))
+
+    story.append(Paragraph(
+        "Everything up to here is the story — the structural reasons this looks like a good business. "
+        "Everything in this section is the contract-level evidence that confirms the story is real. "
+        "Balance-sheet items. Customer-by-customer revenue. Per-kilometre unit economics. "
+        "These are the numbers you can put on a memo without using the word &quot;should.&quot;",
+        S['lede']))
+
+    story.append(Paragraph("Take-or-pay is structurally binding", S['subsection']))
+
+    story.append(Paragraph(
+        "The single most important piece of evidence in this entire pitch lives in one line of Orient's "
+        "2025 annual report. Under the breakdown of performance obligations, the company explicitly reports "
+        "the &quot;expected amount to be refunded to customers&quot; for both domestic and overseas submarine "
+        "cable products as <b>RMB 0.00</b>. The same zero appears in the 2024 annual report.", S['body']))
+
+    story.append(Callout(
+        "Why this matters",
+        "When a wind-farm developer signs a cable contract with Orient, they pay a cash deposit upfront to reserve "
+        "manufacturing capacity. If they cancel, they forfeit the deposit. The annual report's zero-refund disclosure "
+        "is empirical take-or-pay — the same kind of evidence pharma analysts look for in companies like Stevanato "
+        "Group, where €132 million of customer prepayments validated the contractual structure.",
+        GREEN, colors.HexColor("#eaf8f1")))
+
+    story.append(Paragraph(
+        "How much money is sitting on the balance sheet under this regime? Contract liabilities surged from "
+        "RMB 1.67 billion (Q2 2025) to RMB 2.37 billion (year-end 2025) to RMB 2.50 billion (Q1 2026) — "
+        "a 50% increase across nine months. Performance bonds outstanding stand at CNY 415 million plus "
+        "EUR 18 million — the operational scale of guarantees Orient has posted to customers.", S['body']))
+
+    story.append(Paragraph(
+        "<b>Backlog conversion math:</b> mid-2025 backlog of RMB 19.0 billion against full-year revenue "
+        "guidance of ~RMB 10.0 billion implies roughly 52.6% conversion within twelve months. The other "
+        "half flows into outer years.", S['body']))
+
+    story.append(Paragraph("Customer concentration — decoded with honest uncertainty", S['subsection']))
+
+    story.append(Paragraph(
+        "Orient's annual report aggregates the top-5 customers as one anonymised line item — 59.6% of "
+        "revenue collectively, 67.15% of accounts receivable + contract assets. Cross-referencing public "
+        "tender data with developer 10-K disclosures decodes the top three:", S['body']))
+
+    cust_data = [
+        ['Rank', 'Customer', 'FY25 revenue', '% of total', 'Driver'],
+        ['1', 'China General Nuclear Power (CGN)', 'RMB 1.30 bn', '12.0%', 'Yangjiang Fanshi 2 & 3'],
+        ['2', 'Inch Cape Offshore Ltd (UK · SSEN)', 'RMB 0.91 bn', '8.4%', 'UK 220kV export cable'],
+        ['3', 'China Energy Engineering (CEEC)', 'RMB 0.86 bn', '7.9%', 'Domestic EPC contracts'],
+        ['4–5', 'State Grid + Southern Power framework', '~RMB 3.4 bn', '~31.3%', 'Triangulated'],
+    ]
+    t = Table(cust_data, colWidths=[0.5*inch, 2.4*inch, 1.1*inch, 0.85*inch, 1.55*inch])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), CYAN),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 9),
+        ('FONTSIZE', (0,1), (-1,-1), 9.5),
+        ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+        ('TEXTCOLOR', (0,1), (-1,-1), TEXT),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [SOFT_BG, colors.white]),
+        ('GRID', (0,0), (-1,-1), 0.4, BORDER),
+        ('TOPPADDING', (0,0), (-1,-1), 7),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 7),
+        ('LEFTPADDING', (0,0), (-1,-1), 8),
+    ]))
+    story.append(t)
+
+    story.append(Spacer(1, 10))
+    story.append(Paragraph(
+        "The gap between top-3 (28.3%) and disclosed top-5 (59.6%) implies the 4th and 5th positions are "
+        "broad framework roll-ups — likely aggregated State Grid and Southern Power Grid provincial entities. "
+        "Top-10 estimate: ~78% of revenue (75–85% band). Counterparty default risk is essentially zero "
+        "because the anchors are state-owned, but execution concentration is high — a single Inch Cape "
+        "slip moves 8.4% of revenue.", S['body']))
+
+    story.append(PageBreak())
+
+    story.append(Paragraph("Per-kilometre economics — the build-up", S['subsection']))
+
+    story.append(Paragraph(
+        "Submarine cable manufacturing is overwhelmingly a raw-material business. More than 90% of total "
+        "manufacturing cost is direct raw materials. Per Credit Suisse's decomposition:", S['body']))
+
+    cost_data = [
+        ['Component', '% of BOM', 'Note'],
+        ['Copper conductor', '37%', 'The single biggest input cost and the main margin risk'],
+        ['Other metals (aluminium, steel armour)', '28%', 'Standard procurement'],
+        ['Polymer (XLPE insulation)', '14%', 'High-voltage grades still imported from Europe'],
+        ['Plastics and other materials', '14%', ''],
+        ['Manufacturing overhead', '5%', ''],
+        ['Direct labour', '2%', ''],
+    ]
+    t = Table(cost_data, colWidths=[2.6*inch, 0.9*inch, 2.85*inch])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), CYAN),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 9),
+        ('FONTSIZE', (0,1), (-1,-1), 9.5),
+        ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+        ('TEXTCOLOR', (0,1), (-1,-1), TEXT),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [SOFT_BG, colors.white]),
+        ('GRID', (0,0), (-1,-1), 0.4, BORDER),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('LEFTPADDING', (0,0), (-1,-1), 8),
+    ]))
+    story.append(t)
+
+    story.append(Spacer(1, 10))
+    story.append(Paragraph(
+        "Management has guided the ASP of a 500 kV submarine cable at approximately <b>RMB 14.0 million "
+        "per kilometre</b>. A 220 kV cable carries an ASP roughly 30% lower (~RMB 10.8 M/km). A 66 kV "
+        "inter-array cable runs ~RMB 1.5 M/km. ±525 kV HVDC commands the highest premium (~RMB 16 M/km, "
+        "approximately 15% above 500 kV AC).", S['body']))
+
+    story.append(Paragraph(
+        "Margins peaked near <b>50%</b> in 2021 during the subsidised rush installation period. "
+        "Management guides 30–40% normalized post-grid-parity, stabilising around 35% by 2025. "
+        "Mid-2025 reported 25.0% on submarine cables — compressed during a delivery-delay quarter "
+        "but expected to recover.", S['body']))
+
+    story.append(Callout(
+        "The deflation risk worth knowing about",
+        "Bigger turbines reduce cable demand per GW. A 1 GW project with 6 MW turbines needs ~167 foundations "
+        "and lots of inter-array cabling. The same 1 GW with 15 MW Vestas turbines (as used at Inch Cape) needs only "
+        "72 foundations and far less inter-array. Inch Cape consumed just ~154 km of export cable per GW — roughly "
+        "half the 300 km/GW heuristic from France's AO10 tender. Even if installed GW meets target, kilometres-of-cable "
+        "per GW may shrink. The bull case quietly assumes constant content-per-GW. It probably shouldn't.",
+        COPPER, colors.HexColor("#fdf1e8")))
+
+    story.append(PageBreak())
+
+    # ============ SECTION 9: PIPELINE REALITY CHECK ============
+    story.append(SectionHeader(9, "Pipeline reality check"))
+
+    story.append(Paragraph(
+        "China's 100 GW target needs a haircut. Europe's supply deficit is real but narrower than the "
+        "bull case implies. Here's the math.", S['lede']))
+
+    story.append(Paragraph("China — the 47% historical track-rate", S['subsection']))
+
+    story.append(Paragraph(
+        "During the 14th Five-Year Plan, China targeted 60 GW of cumulative offshore wind installations "
+        "across 2021–2023. Only ~28 GW was actually installed during that window. That's a "
+        "<b>47% historical track-rate</b> — implementation falling well short of plan. The reasons are "
+        "operational, not policy: waterway coordination disputes, military airspace clearance, "
+        "installation vessel shortages, port logistics, grid connection bottlenecks. A January 2025 "
+        "Ministry of Natural Resources directive requiring new projects to be ≥30 km offshore or in "
+        "waters >30 m deep further constrains the viable project zone.", S['body']))
+
+    story.append(Paragraph(
+        "Apply the same 47% track-rate to the 15FYP target of 100 GW cumulative by 2030: realistic "
+        "installations come out at roughly <b>47 GW</b>, not 100. Industry channel research suggests a "
+        "more bullish ~12 GW/year ceiling driven by capacity constraints — that lands at ~60 GW "
+        "cumulative by 2030, still well below the headline target.", S['body']))
+
+    story.append(Paragraph(
+        "<b>Either way, the China demand story is real but smaller than the policy headline suggests.</b> "
+        "Worth pricing that into the revenue model.", S['body']))
+
+    story.append(Paragraph("Named pipeline projects driving 2026/2027 cable demand", S['subsection']))
+
+    pipeline_data = [
+        ['Project', 'Developer', 'Capacity / spec', 'Status', 'Expected COD'],
+        ['Yangjiang Qingzhou 5 & 7', 'Three Gorges', '±500 kV', 'Under construction', '2026'],
+        ['Yangjiang Fanshi 2 & 3', 'CGN', '500 kV AC', 'Implementation', '2025/26'],
+        ['Yangjiang Sanshandao 5 & 6', 'CGN', '1.0 GW · 114.8km 500kV', 'Advancing', 'Q4 2026'],
+        ['Shenneng Hainan CZ2', 'Shenneng', '1.2 GW', 'Phase I connected Mar 25', '2026/27'],
+        ['Longyuan Hainan CZ8', 'Longyuan', '500 MW', 'First monopile Oct 25', '2027'],
+        ['Datang Danzhou Phase II', 'Datang', '600 MW', 'Site work Dec 25', '2027'],
+    ]
+    t = Table(pipeline_data, colWidths=[1.55*inch, 0.95*inch, 1.4*inch, 1.45*inch, 0.95*inch])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), CYAN),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 8.5),
+        ('FONTSIZE', (0,1), (-1,-1), 8.5),
+        ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+        ('TEXTCOLOR', (0,1), (-1,-1), TEXT),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [SOFT_BG, colors.white]),
+        ('GRID', (0,0), (-1,-1), 0.4, BORDER),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('LEFTPADDING', (0,0), (-1,-1), 7),
+    ]))
+    story.append(t)
+
+    story.append(Spacer(1, 14))
+    story.append(Paragraph(
+        "There's a real pipeline. But not enough of it is fully funded, permitted, and "
+        "vessel-slotted to support the 10 GW/year mandate. The realistic 2026–2030 install range is "
+        "30–60 GW cumulative.", S['body']))
+
+    story.append(PageBreak())
+
+    story.append(Paragraph("Europe — supply chain still tight; two flags to know about", S['subsection']))
+
+    story.append(Paragraph(
+        "European cable producers are sold out 4–6 years forward (Prysmian 5.2 years, NKT 5.2 years, "
+        "Nexans 4.6 years). The structural undersupply of HVDC submarine cable is forecast at "
+        "1,500 km/year currently, widening to 2,500 km/year by 2030 even after the announced capacity "
+        "builds. That's the window for Chinese overflow.", S['body']))
+
+    story.append(Paragraph(
+        "Capacity coming online: Prysmian doubles Pikkala (Finland) for 525 kV by 2026; Hellenic Cables "
+        "added 50,000 tonnes/year at Corinth (Q1 2025); Sumitomo £350M UK plant mid-2026; "
+        "LS Cable £1bn UK Tyne facility slipped from 2027 to >2028. The gap narrows but doesn't close "
+        "before 2030.", S['body']))
+
+    story.append(Paragraph("Flag 1 — Chinese suppliers' historical absence from European HVDC", S['subsection']))
+
+    story.append(Paragraph(
+        "Kepler Cheuvreux (June 2025) is direct on this: <i>&quot;China's Hengtong and Orient Cable, "
+        "alongside South Korean peers, remain largely absent from the European high-voltage and HVDC "
+        "submarine cable markets.&quot;</i> Reasons cited: <i>&quot;regulatory hurdles, technical "
+        "standards, and deeply ingrained strategic and trust-related barriers among European "
+        "transmission system operators.&quot;</i>", S['body']))
+
+    story.append(Paragraph(
+        "Translation: Inch Cape may be the exception, not the new rule. The 15–20% overseas revenue "
+        "target leans heavily on Inch Cape becoming a reference for follow-on European wins, not on "
+        "European TSOs broadly opening up. The conservative path is overseas revenue settling at 12–15% "
+        "rather than 20%.", S['body']))
+
+    story.append(Paragraph("Flag 2 — France AO10's 60% local-content wall", S['subsection']))
+
+    story.append(Paragraph(
+        "The French 10 GW tender — the largest single offshore wind procurement in European history, "
+        "expected to award fall 2026 — incorporates Net-Zero Industry Act standards requiring "
+        "<b>≥60% European local supply chain</b> for submarine cables. That's not a tail risk; it's a "
+        "hard exclusion on roughly 3,000 km of cable demand. Combined with EU FDI review thresholds "
+        "(triggers above €100 million, forces JV with EU partner + IP sharing + 60–105 day review), "
+        "Orient cannot economically build greenfield European capacity to bypass the wall.", S['body']))
+
+    story.append(Callout(
+        "What this means for the model",
+        "The bull case dashboard shows overseas revenue growing 11.6% → 15–20% by 2030. The Kepler &quot;largely "
+        "absent&quot; quote and the France 60% wall together suggest the realistic landing is 12–15%, not 20%. "
+        "Worth haircutting that line item in the revenue build.",
+        COPPER, colors.HexColor("#fdf1e8")))
+
+    story.append(PageBreak())
+
+    # ============ SECTION 10: TRIPWIRES & DISCLOSURE GAPS ============
+    story.append(SectionHeader(10, "Tripwires and disclosure gaps"))
+
+    story.append(Paragraph(
+        "Every thesis has things that, if observed, would prove it wrong. Below are the six specific "
+        "monitorable thresholds that would flip this name short — each one observable in quarterly "
+        "disclosure or public tender data. Below those: the metrics Orient doesn't disclose, plus the "
+        "triangulation method for each.", S['lede']))
+
+    story.append(Paragraph("Six quantified tripwires", S['subsection']))
+
+    tripwires = [
+        ("1. Demand", "Q1 or Q2 2026 China offshore wind bidding falls below 2 GW",
+         "The 10 GW/year installation thesis requires healthy bidding flow. A sub-2 GW quarter implies installation pace closer to 14FYP (5–7 GW/year). Public bidding data; quarterly check."),
+        ("2. Margin", "A 500 kV submarine cable tender awards at below RMB 12 million per km",
+         "Management guides 14 M/km. A 14% ASP haircut at the highest-margin product would replay the 2021 turbine price collapse pattern and compress submarine gross margin from 35% to ~25%."),
+        ("3. Inventory", "Submarine cable inventory grows more than 25% QoQ without matching revenue ramp",
+         "Current 819 km finished-goods inventory at end-2025 (+147.6% YoY). Should convert to revenue through 2026. If it keeps building while revenue stays flat, downstream installation is stalling — replays the Q2 2025 pattern when net profit dropped 49.6% YoY."),
+        ("4. Competition", "China top-3 oligopoly share falls below 80% on a trailing-four-quarter basis",
+         "Currently 87% (ZTT 37%, Orient 33%, Hengtong 17%). A successful new entrant qualifying for State Grid framework on 500 kV+ products and winning provincial tenders would be the destabilising signal."),
+        ("5. Geopolitics", "A named UK / EU national-security review action specifically targets Chinese submarine cable",
+         "The Mingyang precedent (UK blocked Chinese turbine factory) and April 2024 EU anti-subsidy probe on Chinese turbines are pointing this way. A binding restriction naming subsea cable would haircut overseas revenue from the 15–20% target to single digits."),
+        ("6. Copper", "Submarine gross margin falls below 28% for two consecutive quarters",
+         "Copper is 37% of cable BOM. Orient hedges 100% of subsea orders via futures, but new orders need ASP renegotiation. A sustained copper spike unmatched by pass-through, plus competitive ASP pressure, would compress margins."),
+    ]
+
+    for label, signal, body in tripwires:
+        story.append(Paragraph(f"<font color='#c24a5f'><b>{label} —</b></font> <b>{signal}</b>", S['body']))
+        story.append(Paragraph(f"<font color='#1a2235'>{body}</font>", S['body']))
+
+    story.append(PageBreak())
+
+    story.append(Paragraph("The inventory tell — best single leading indicator", S['subsection']))
+
+    story.append(Paragraph(
+        "819 km of submarine cable inventory at end-2025 represents approximately 11 months of "
+        "run-rate (annual delivery was 924 km). This is the single best leading indicator of whether "
+        "the thesis is working or stalling.", S['body']))
+
+    story.append(Paragraph(
+        "<b>Bullish read:</b> deliveries about to ramp in 2026/27. The peak-season installation window "
+        "(Q2/Q3) absorbs this inventory rapidly. Could drive +30–50% sequential revenue growth in the "
+        "subsea segment.", S['body']))
+
+    story.append(Paragraph(
+        "<b>Bearish read:</b> working capital piling up because downstream installation is delayed. "
+        "Replays the 2025 pattern — finished goods rising while revenue stays flat.", S['body']))
+
+    story.append(Paragraph(
+        "Which way it goes is observable in Q2 and Q3 2026 quarterly earnings. The KPI to watch: subsea "
+        "cable kilometres delivered versus inventory days outstanding.", S['body']))
+
+    story.append(Paragraph("Where Orient doesn't disclose — and how to triangulate", S['subsection']))
+
+    story.append(Paragraph(
+        "Six material gaps in standard disclosure. Acknowledging them proactively (with the triangulation "
+        "workaround for each) is the difference between a sophisticated pitch and an exposed one.", S['body']))
+
+    gaps_data = [
+        ['Metric not disclosed', 'How to triangulate'],
+        ['Customer concentration beyond top-5', 'Cross-reference China public procurement tender awards with developer 10-K supplier disclosures'],
+        ['Per-project Average Selling Price', 'Reverse-engineer by dividing bid award values by route km from provincial bidding documents'],
+        ['Quarterly submarine volume in km', 'Use inventory build as leading indicator + maritime AIS data tracking Dongfang Haigong 01/02 vessels'],
+        ['Geographic export breakdown', 'Track named project deliveries: Inch Cape (UK), Hollandse Kust West Beta (NL), Baltica 2 (PL)'],
+        ['Capex and utilization by facility', '"Construction in Progress" ledger discloses RMB 10.3 M for northern base; Yangjiang Phase 1 at 85% utilization mid-2025'],
+        ['Contract cancellation penalty formulas', 'The "expected refund = RMB 0.00" disclosure functionally confirms non-refundability; performance bonds (CNY 415 M + EUR 18 M) are the guarantee scale'],
+    ]
+    t = Table(gaps_data, colWidths=[2.3*inch, 3.85*inch])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), YELLOW),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 9),
+        ('FONTSIZE', (0,1), (-1,-1), 9.5),
+        ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+        ('TEXTCOLOR', (0,1), (-1,-1), TEXT),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [SOFT_BG, colors.white]),
+        ('GRID', (0,0), (-1,-1), 0.4, BORDER),
+        ('TOPPADDING', (0,0), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+        ('LEFTPADDING', (0,0), (-1,-1), 8),
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+    ]))
+    story.append(t)
+
+    story.append(PageBreak())
+
+    # ============ SECTION 11: DATED CATALYSTS BY QUARTER ============
+    story.append(SectionHeader(11, "Dated catalyst calendar"))
+
+    story.append(Paragraph(
+        "Calendar events — not &quot;should re-rate over time.&quot; Each event below is dated, named, "
+        "and individually proves or breaks a piece of the thesis. The 12-month window through Q4 2027 "
+        "has the highest density of inflection points.", S['lede']))
+
+    cal_data = [
+        ['Window', 'Event', 'Signal'],
+        ['Q2 2026', 'Netherlands 3.5 GW offshore wind tender launch (CfD framework)', '+ if Orient bids'],
+        ['Q2 2026', 'Q2 earnings — subsea km delivered vs 819 km inventory benchmark', '+ if ↑ velocity'],
+        ['Q2 2026', 'China bidding volume', '− if <2 GW (tripwire 1)'],
+        ['Q3 2026', 'UK Allocation Round 8 (AR8) — brought forward to July', '+ awards size'],
+        ['Q3 2026', 'France AO10 award — 10 GW expected to land in fall 2026', '− 60% local content'],
+        ['Q3 2026', 'Q3 earnings — peak delivery season', '+ if subsea +50% QoQ'],
+        ['Q4 2026', 'Orient cumulative European orders expected to reach ~RMB 4 bn', '+ confirms 20% overseas'],
+        ['Q4 2026', 'Yangjiang Sanshandao 500 kV HVDC commissioning', '+ first ±500 kV revenue'],
+        ['Q4 2026', 'LS Cable BalWin5 FID — Korean competitor wins major European HVDC', '− displacement risk'],
+        ['1H 2027', 'Germany CfD auctions resume after 2026 framework finalisation', '+ tender volume'],
+        ['1H 2027', 'Yantai (Shandong) facility online — RMB 3–4 bn projected output', '+ capacity step-up'],
+        ['2H 2027', 'Inch Cape full commercial operations begin — 1.1 GW UK project live', '+ track record proven'],
+        ['2028', 'FY27 EPS prints (UBS models RMB 3.38) — 18× P/E at current price', '+ re-rate'],
+        ['2028', '±800 kV HVDC R&D milestone — positions for trans-oceanic interconnectors', '+ moat extends'],
+        ['2028', 'LS Cable Tyne UK facility comes online — European supply gap starts closing', '− Chinese window narrows'],
+    ]
+    t = Table(cal_data, colWidths=[0.85*inch, 3.55*inch, 1.75*inch])
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), CYAN),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 9),
+        ('FONTSIZE', (0,1), (-1,-1), 8.5),
+        ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+        ('TEXTCOLOR', (0,1), (-1,-1), TEXT),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [SOFT_BG, colors.white]),
+        ('GRID', (0,0), (-1,-1), 0.4, BORDER),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('LEFTPADDING', (0,0), (-1,-1), 7),
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+    ]))
+    story.append(t)
+
+    story.append(Spacer(1, 14))
+    story.append(Callout(
+        "How to use this calendar",
+        "Pick the two or three events most relevant to your conviction. Set quarterly reminders. After each event, "
+        "score it as thesis-confirming (+) or thesis-breaking (−). Two consecutive negatives = revisit the position size. "
+        "Three or more negatives in a single quarter = the thesis is breaking, regardless of what the stock price does.",
+        CYAN, LIGHT_BG))
+
+    story.append(PageBreak())
+
+    # ============ SECTION 12: DASHBOARD GUIDE ============
+    story.append(SectionHeader(12, "How to navigate the dashboard"))
 
     story.append(Paragraph(
         "The dashboard is structured top to bottom for reading in order. Here is what each "
@@ -657,8 +1048,8 @@ def build():
 
     story.append(PageBreak())
 
-    # ============ SECTION 9: GLOSSARY ============
-    story.append(SectionHeader(9, "Glossary"))
+    # ============ SECTION 13: GLOSSARY ============
+    story.append(SectionHeader(13, "Glossary"))
     story.append(Paragraph("Definitions for every jargon term that appears in the dashboard.", S['body']))
     story.append(Spacer(1, 10))
 
